@@ -3,7 +3,7 @@ title: Input components
 description: Form inputs, search fields, and select dropdowns for user data entry
 ---
 
-Cinemusic provides three input components for different use cases: search inputs, form inputs with validation, and select dropdowns.
+Cinemusic provides four input components for different use cases: search inputs, icon-based search inputs, form inputs with validation, and select dropdowns.
 
 ## InputSearchGenericComponent
 
@@ -60,6 +60,99 @@ export class MyComponent {
   handleSearch(searchData: TypeSearch) {
     console.log('Search type:', searchData.type);
     console.log('Search value:', searchData.value); // Already uppercase
+  }
+}
+```
+
+## InputIconSearchComponent
+
+A styled search input with an integrated search icon, supporting customizable colors and styling.
+
+### Component signature
+
+Location: `src/app/ui/components/input-icon-search/input-icon-search.component.ts:42`
+
+```typescript
+export class InputIconSearchComponent {
+  public placeholder: InputSignal<string> = input<string>("placeholder");
+  public widthInput: InputSignal<string> = input<string>("100%");
+  public heightInput: InputSignal<string> = input<string>("2rem");
+  public onChangeInputData: OutputEmitterRef<string> = output<string>();
+  public bgColor: InputSignal<string> = input<string>("var(--bg-selected-menu-music)");
+  public colorText: InputSignal<string> = input<string>("white");
+  public colorBorder: InputSignal<string> = input<string>("white");
+  public colorFocus: InputSignal<string> = input<string>("white");
+  public colorIcon: InputSignal<string> = input<string>("white");
+  public colorIconHover: InputSignal<string> = input<string>("white");
+}
+```
+
+### Props
+
+<ParamField path="placeholder" type="string" default="'placeholder'">
+  The placeholder text displayed when the input is empty.
+</ParamField>
+
+<ParamField path="widthInput" type="string" default="'100%'">
+  The width of the input field. Accepts any valid CSS width value.
+</ParamField>
+
+<ParamField path="heightInput" type="string" default="'2rem'">
+  The height of the input field. Accepts any valid CSS height value.
+</ParamField>
+
+<ParamField path="bgColor" type="string" default="'var(--bg-selected-menu-music)'">
+  The background color of the input. Supports CSS variables and color values.
+</ParamField>
+
+<ParamField path="colorText" type="string" default="'white'">
+  The text color for user input.
+</ParamField>
+
+<ParamField path="colorBorder" type="string" default="'white'">
+  The border color when the input is not focused.
+</ParamField>
+
+<ParamField path="colorFocus" type="string" default="'white'">
+  The border color when the input is focused.
+</ParamField>
+
+<ParamField path="colorIcon" type="string" default="'white'">
+  The color of the search icon.
+</ParamField>
+
+<ParamField path="colorIconHover" type="string" default="'white'">
+  The color of the search icon on hover.
+</ParamField>
+
+### Events
+
+<ParamField path="onChangeInputData" type="OutputEmitterRef<string>">
+  Emitted when the input value changes. Returns the raw string value.
+</ParamField>
+
+### Usage example
+
+```html
+<app-input-icon-search
+  placeholder="Search for music..."
+  widthInput="100%"
+  heightInput="3rem"
+  bgColor="rgba(0, 0, 0, 0.4)"
+  colorText="white"
+  colorBorder="transparent"
+  colorFocus="var(--primary-color)"
+  colorIcon="#AD00F8"
+  colorIconHover="#8E00CF"
+  (onChangeInputData)="onSearchChange($event)"
+/>
+```
+
+```typescript
+export class SearchComponent {
+  onSearchChange(query: string) {
+    console.log('Search query:', query);
+    // Perform search logic
   }
 }
 ```
