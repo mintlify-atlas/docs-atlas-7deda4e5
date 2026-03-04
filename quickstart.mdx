@@ -1,80 +1,297 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quick start
+description: Get Cinemusic running locally in development mode and explore the application's features in minutes.
 ---
 
-## Get started in three steps
+## Prerequisites
 
-Get your documentation site running locally and make your first customization.
+Before starting, make sure you have completed the [installation](/installation) steps. You should have:
 
-### Step 1: Set up your local environment
+- Node.js and npm installed
+- Angular CLI installed globally
+- Cinemusic repository cloned
+- All dependencies installed via `npm install`
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
+## Start the development server
+
+Let's get Cinemusic running on your local machine.
+
+<Steps>
+  <Step title="Navigate to the project directory">
+    Open your terminal and navigate to the Cinemusic directory:
     
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
+    ```bash
+    cd cinemusic
+    ```
+  </Step>
+  
+  <Step title="Start the development server">
+    Run the Angular development server:
     
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
+    ```bash
+    ng serve
+    ```
     
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    Or use the npm script:
+    
+    ```bash
+    npm start
+    ```
+    
+    <Info>
+      Both commands do the same thing. The `npm start` command is a shortcut defined in `package.json` that runs `ng serve`.
+    </Info>
+    
+    You should see output similar to:
+    
+    ```
+    ** Angular Live Development Server is listening on localhost:4200 **
+    ✔ Browser application bundle generation complete.
+    ```
+  </Step>
+  
+  <Step title="Open the application">
+    Open your browser and navigate to:
+    
+    ```
+    http://localhost:4200/
+    ```
+    
+    The application will automatically reload if you make changes to the source files.
+  </Step>
+</Steps>
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+<Note>
+  The first compilation may take a minute. Subsequent rebuilds will be much faster thanks to Angular's incremental compilation.
+</Note>
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+## Explore the application
 
-### Step 3: Go live
+Once the server is running, you can explore Cinemusic's features:
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+### Music section
+
+The default route redirects to the music section at `/music`. Here you can:
+
+- Browse music organized in a bento grid layout
+- View albums, playlists, and categories
+- Create custom playlists
+- Use the integrated music player to play songs
+
+### Navigation
+
+The application includes several key routes:
+
+| Route | Description |
+|-------|-------------|
+| `/music` | Main music browsing interface |
+| `/music/myMusic` | Your personal playlists and songs |
+| `/series` | Series and content sections |
+| `/series/gender/:gender` | Filter series by genre |
+| `/series/serie/:id` | View specific series details |
+
+### Multilingual support
+
+Cinemusic supports multiple languages out of the box:
+
+<Steps>
+  <Step title="Access language settings">
+    Look for the language selector in the application interface (typically in the header or settings area).
+  </Step>
+  
+  <Step title="Switch languages">
+    Toggle between available languages (Spanish is the default, with English support).
+    
+    The application uses **ngx-translate** to load translations from `/src/i18n/` JSON files.
+  </Step>
+</Steps>
+
+## Development commands
+
+Here are the essential commands you'll use during development:
+
+<CodeGroup>
+
+```bash Development server
+# Start the dev server (default port 4200)
+ng serve
+
+# Start on a custom port
+ng serve --port 4300
+
+# Start with production configuration
+ng serve --configuration production
+```
+
+```bash Building
+# Build for production
+ng build
+
+# Build and watch for changes
+ng build --watch --configuration development
+
+# Build output is in dist/cinemusic/
+```
+
+```bash Testing
+# Run unit tests with Karma
+ng test
+
+# Run tests in headless mode (for CI/CD)
+ng test --browsers=ChromeHeadless --watch=false
+```
+
+```bash Deployment
+# Deploy to GitHub Pages
+ng deploy
+
+# Or use the npm script
+npm run deploy
+```
+
+</CodeGroup>
+
+## Project structure
+
+Understand the key directories in the Cinemusic project:
+
+```
+cinemusic/
+├── src/
+│   ├── app/
+│   │   ├── domain/              # Business logic layer
+│   │   │   ├── models/          # Data models (music, series)
+│   │   │   ├── services/        # API and business services
+│   │   │   ├── states/          # State management
+│   │   │   ├── interceptors/    # HTTP interceptors (error, mapper)
+│   │   │   ├── mappers/         # Data transformation
+│   │   │   ├── pipes/           # Custom Angular pipes
+│   │   │   └── utils/           # Utility functions
+│   │   └── ui/                  # Presentation layer
+│   │       ├── pages/           # Feature pages
+│   │       │   ├── music/       # Music section components
+│   │       │   └── series/      # Series section components
+│   │       ├── components/      # Reusable UI components
+│   │       └── animations/      # Animation definitions
+│   ├── i18n/                    # Translation files (es.json, en.json)
+│   ├── index.html               # Main HTML file
+│   └── main.ts                  # Application entry point
+├── angular.json                 # Angular CLI configuration
+├── package.json                 # Dependencies and scripts
+└── tsconfig.json                # TypeScript configuration
+```
+
+## Making your first change
+
+Let's make a simple change to verify everything is working:
+
+<Steps>
+  <Step title="Open a component file">
+    Open `src/app/app.component.ts` in your code editor.
+  </Step>
+  
+  <Step title="Modify the component">
+    Make a small change to the template or styles. For example, update a text string or color.
+  </Step>
+  
+  <Step title="See the changes">
+    Save the file and watch your browser automatically reload with the changes.
+    
+    <Info>
+      Angular's development server includes hot module replacement (HMR), so most changes appear instantly without a full page reload.
+    </Info>
+  </Step>
+</Steps>
+
+## Configuration files
+
+Key configuration files you should know about:
+
+### app.config.ts
+
+The main application configuration at `src/app/app.config.ts` sets up:
+
+```typescript
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }), 
+    provideRouter(routes),
+    provideHttpClient(withInterceptors([errorInterceptor, mapperInterceptor])),
+    provideAnimationsAsync(),
+    provideTranslateService({
+      defaultLanguage: 'es',
+      loader: {
+        provide: TranslateLoader,
+        useFactory: httpLoaderFactory,
+        deps: [HttpClient]
+      }
+    })
+  ]
+};
+```
+
+This configuration includes:
+- Router with lazy-loaded routes
+- HTTP client with custom interceptors for error handling and data mapping
+- Browser animations
+- Translation service with Spanish as the default language
+
+### angular.json
+
+The `angular.json` file configures:
+- Build output path: `dist/cinemusic`
+- Base href: `/cinemusic/` (for GitHub Pages deployment)
+- Asset management and styles
+- Build budgets and optimizations
+
+## Troubleshooting
+
+### Server won't start
+
+If `ng serve` fails:
+
+1. Ensure all dependencies are installed: `npm install`
+2. Clear the Angular cache: `rm -rf .angular/cache`
+3. Check that port 4200 is not in use by another process
+
+### Blank page in browser
+
+If you see a blank page:
+
+1. Open browser developer tools (F12) and check the Console for errors
+2. Verify the server is running on port 4200
+3. Try accessing `http://localhost:4200/music` directly
+
+### Translation files not loading
+
+If translations don't appear:
+
+1. Check that `src/i18n/` contains `es.json` and `en.json` files
+2. Verify the translation files are valid JSON
+3. Ensure the HTTP loader is configured correctly in `app.config.ts`
 
 ## Next steps
 
-Now that you have your docs running, explore these key features:
+Now that you have Cinemusic running locally, you can:
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Explore the architecture" icon="diagram-project">
+    Dive into the domain-driven design pattern used in the `domain/` and `ui/` directories
+  </Card>
+  
+  <Card title="Add new features" icon="code">
+    Create new components, services, or pages following the existing patterns
+  </Card>
+  
+  <Card title="Customize translations" icon="language">
+    Add new languages or modify existing translations in the `i18n/` directory
+  </Card>
+  
+  <Card title="Run tests" icon="flask">
+    Execute the test suite with `ng test` to ensure everything works correctly
+  </Card>
 </CardGroup>
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+  For production deployment, use `ng build` to create an optimized build in `dist/cinemusic/`. You can deploy this to any static hosting service or use `ng deploy` for GitHub Pages.
 </Note>

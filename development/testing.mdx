@@ -1,0 +1,274 @@
+---
+title: Testing the application
+description: Learn how to run and write tests for Cinemusic using Karma and Jasmine
+---
+
+Cinemusic uses Karma as the test runner and Jasmine as the testing framework for unit testing Angular components, services, and other application code.
+
+## Testing setup
+
+The testing environment is configured with:
+
+- **Karma**: Test runner (v6.4.0)
+- **Jasmine**: Testing framework (v5.5.0)
+- **Chrome**: Headless browser for running tests
+- **Coverage reports**: Code coverage tracking
+
+### Test configuration
+
+The test configuration is defined in `angular.json`:
+
+<CodeGroup>
+```json angular.json
+"test": {
+  "builder": "@angular-devkit/build-angular:karma",
+  "options": {
+    "polyfills": [
+      "zone.js",
+      "zone.js/testing"
+    ],
+    "tsConfig": "tsconfig.spec.json",
+    "assets": [
+      {
+        "glob": "**/*",
+        "input": "public"
+      }
+    ],
+    "styles": [
+      "src/styles.css"
+    ],
+    "scripts": []
+  }
+}
+```
+</CodeGroup>
+
+### TypeScript configuration
+
+The `tsconfig.spec.json` file extends the main TypeScript config with test-specific settings:
+
+<CodeGroup>
+```json tsconfig.spec.json
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/spec",
+    "types": [
+      "jasmine"
+    ]
+  },
+  "include": [
+    "src/**/*.spec.ts",
+    "src/**/*.d.ts"
+  ]
+}
+```
+</CodeGroup>
+
+## Running tests
+
+<Steps>
+  <Step title="Install dependencies">
+    Ensure all testing dependencies are installed:
+
+    ```bash
+    npm install
+    ```
+  </Step>
+
+  <Step title="Run the test command">
+    Execute tests using the npm script:
+
+    <CodeGroup>
+    ```bash Using npm script
+    npm test
+    ```
+
+    ```bash Using Angular CLI
+    ng test
+    ```
+    </CodeGroup>
+
+    <Info>
+      This launches Karma in watch mode, which automatically reruns tests when files change.
+    </Info>
+  </Step>
+
+  <Step title="View results">
+    Test results appear in two places:
+
+    - **Terminal**: Summary of passed/failed tests
+    - **Browser**: Detailed test results in the Karma HTML reporter
+
+    The browser opens automatically at `http://localhost:9876/`
+  </Step>
+</Steps>
+
+## Writing tests
+
+Cinemusic uses Jasmine's BDD-style syntax for writing tests. Test files use the `.spec.ts` extension and are located alongside the code they test.
+
+### Component test example
+
+<CodeGroup>
+```typescript component.spec.ts
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MyComponent } from './my.component';
+
+describe('MyComponent', () => {
+  let component: MyComponent;
+  let fixture: ComponentFixture<MyComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [MyComponent]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(MyComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should render title', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('h1')?.textContent).toContain('My Component');
+  });
+});
+```
+</CodeGroup>
+
+### Service test example
+
+<CodeGroup>
+```typescript service.spec.ts
+import { TestBed } from '@angular/core/testing';
+import { MyService } from './my.service';
+
+describe('MyService', () => {
+  let service: MyService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(MyService);
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+
+  it('should return data', () => {
+    const result = service.getData();
+    expect(result).toEqual(['item1', 'item2']);
+  });
+});
+```
+</CodeGroup>
+
+## Test structure
+
+### Jasmine test blocks
+
+Jasmine provides several functions for organizing tests:
+
+| Function | Purpose |
+|----------|----------|
+| `describe()` | Groups related tests into a test suite |
+| `it()` | Defines an individual test case |
+| `beforeEach()` | Runs before each test in the suite |
+| `afterEach()` | Runs after each test in the suite |
+| `beforeAll()` | Runs once before all tests in the suite |
+| `afterAll()` | Runs once after all tests in the suite |
+
+### Common matchers
+
+Jasmine includes built-in matchers for assertions:
+
+```typescript
+expect(value).toBe(expected);           // Strict equality (===)
+expect(value).toEqual(expected);        // Deep equality
+expect(value).toBeTruthy();             // Truthy check
+expect(value).toBeFalsy();              // Falsy check
+expect(value).toContain(item);          // Array/string contains
+expect(value).toBeNull();               // Null check
+expect(value).toBeUndefined();          // Undefined check
+expect(fn).toThrow();                   // Function throws error
+```
+
+## Code coverage
+
+Karma automatically generates code coverage reports when running tests.
+
+### Viewing coverage reports
+
+After running tests, coverage reports are generated in the `coverage` directory:
+
+```bash
+open coverage/cinemusic/index.html
+```
+
+<Note>
+  Coverage reports show which lines of code are tested and which are not, helping you identify gaps in your test suite.
+</Note>
+
+### Coverage metrics
+
+The coverage report includes four metrics:
+
+- **Statements**: Percentage of executable statements tested
+- **Branches**: Percentage of conditional branches tested
+- **Functions**: Percentage of functions tested
+- **Lines**: Percentage of code lines tested
+
+## Test troubleshooting
+
+### Tests fail to start
+
+If Karma fails to start, check that Chrome is installed:
+
+```bash
+which google-chrome
+```
+
+<Info>
+  For headless environments, you may need to configure Karma to use ChromeHeadless instead of Chrome.
+</Info>
+
+### Zone.js errors
+
+If you see zone.js errors, ensure the testing polyfill is loaded:
+
+```typescript
+import 'zone.js/testing';
+```
+
+This is automatically configured in `angular.json` but may need to be added manually in some test files.
+
+### Async test timeout
+
+For tests with async operations, increase the timeout:
+
+```typescript
+it('should complete async operation', (done) => {
+  // Test code
+  setTimeout(() => {
+    expect(result).toBeTruthy();
+    done();
+  }, 5000);
+}, 10000); // 10 second timeout
+```
+
+## Running tests in CI
+
+For continuous integration, run tests in headless mode with a single run:
+
+```bash
+ng test --watch=false --browsers=ChromeHeadless
+```
+
+<Warning>
+  The default `npm test` command runs in watch mode, which is not suitable for CI environments. Use the command above for CI pipelines.
+</Warning>

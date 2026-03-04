@@ -1,0 +1,119 @@
+---
+title: Component library overview
+description: Learn about Cinemusic's reusable Angular 19 component library and design principles
+---
+
+Cinemusic provides a comprehensive library of reusable UI components built with Angular 19. These components are designed to be modular, performant, and easy to integrate into your application.
+
+## Component categories
+
+The component library is organized into three main categories:
+
+<CardGroup cols={3}>
+  <Card title="Buttons" icon="hand-pointer" href="/components/buttons">
+    Generic button components with customizable styles and actions
+  </Card>
+  <Card title="Inputs" icon="keyboard" href="/components/inputs">
+    Search inputs, form inputs, and select dropdowns
+  </Card>
+  <Card title="SVG icons" icon="icons" href="/components/svg-icons">
+    Custom SVG icon components with dynamic sizing and colors
+  </Card>
+</CardGroup>
+
+## Design principles
+
+### Signal-based inputs
+
+All components use Angular's modern signal-based inputs for reactive data binding:
+
+```typescript
+public width: InputSignal<string> = input<string>('100%');
+public color: InputSignal<string> = input<string>('white');
+```
+
+This provides better performance and cleaner reactivity compared to traditional `@Input()` decorators.
+
+### OnPush change detection
+
+Components use `ChangeDetectionStrategy.OnPush` for optimal performance:
+
+```typescript
+@Component({
+  selector: 'app-button-generic',
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+```
+
+This ensures components only re-render when their inputs change, reducing unnecessary rendering cycles.
+
+### Output emitters
+
+Components expose events through `OutputEmitterRef` for parent-child communication:
+
+```typescript
+public actionClick: OutputEmitterRef<void> = output<void>();
+```
+
+You can bind to these events using Angular's standard event binding syntax.
+
+### Standalone components
+
+All components are standalone and can be imported directly without NgModule declarations:
+
+```typescript
+import { ButtonGenericComponent } from './ui/components/button-generic/button-generic.component';
+```
+
+## Styling approach
+
+Components accept inline style inputs for maximum flexibility:
+
+- **width**: Control component width (default: `'100%'`)
+- **height**: Control component height (default varies by component)
+- **color**: Control icon/text colors (default varies by component)
+
+Components also use CSS variables for consistent theming:
+
+```css
+var(--primary-color)
+var(--white-color)
+var(--color-gray-white)
+```
+
+## Getting started
+
+To use a component in your Angular template:
+
+1. Import the component in your TypeScript file
+2. Add it to your component's imports array
+3. Use the component selector in your template
+
+```typescript
+import { Component } from '@angular/core';
+import { ButtonGenericComponent } from './ui/components/button-generic/button-generic.component';
+
+@Component({
+  selector: 'app-my-component',
+  imports: [ButtonGenericComponent],
+  template: `
+    <app-button-generic 
+      buttonText="Click me" 
+      (actionClick)="handleClick()"
+    />
+  `
+})
+export class MyComponent {
+  handleClick() {
+    console.log('Button clicked!');
+  }
+}
+```
+
+## Next steps
+
+Explore the component categories to learn about specific components:
+
+- [Buttons](/components/buttons) - Interactive button components
+- [Inputs](/components/inputs) - Form and search input components
+- [SVG Icons](/components/svg-icons) - Scalable vector icon components

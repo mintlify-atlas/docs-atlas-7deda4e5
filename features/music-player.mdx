@@ -1,0 +1,299 @@
+---
+title: Music player
+description: Learn about the music player component, playback controls, and state management
+---
+
+The music player is the core component of Cinemusic, providing audio playback, playback controls, and state management through Angular signals.
+
+## Architecture
+
+The music player uses a service-based architecture with state management:
+
+- **Component**: `MusicPlayerComponent` - UI and playback controls
+- **State Service**: `StateMusicPlayerService` - Centralized state management
+- **Audio Element**: Native HTML5 audio with ViewChild reference
+
+### State management
+
+The player state is managed using Angular signals in `StateMusicPlayerService`:
+
+```typescript
+public activateMenuMobile: WritableSignal<boolean> = signal<boolean>(false);
+public activateMenu: WritableSignal<boolean> = signal<boolean>(false);
+public selectedSong: WritableSignal<Song> = signal<Song>({} as Song);
+public listSongs: WritableSignal<Song[]> = signal<Song[]>([]);
+public currentTypePlay: WritableSignal<TypePlayEnum> = signal<TypePlayEnum>(TypePlayEnum.SHUFFLE);
+public audioRef: WritableSignal<ElementRef<HTMLAudioElement>> = signal<ElementRef<HTMLAudioElement>>({} as ElementRef<HTMLAudioElement>);
+public autoPlaySongState: WritableSignal<boolean> = signal<boolean>(false);
+```
+
+## Playback controls
+
+### Play and pause
+
+Control audio playback with the following methods:
+
+<CodeGroup>
+
+```typescript Play audio
+public playAudio(): void {
+  this.audioRef().nativeElement.play();
+  this.selectedSong().isPlaying = true;
+  this.autoPlaySongState.set(true);
+  this.devicesConfigService.playBackState();
+}
+```
+
+```typescript Stop audio
+public stopAudio(): void {
+  this.audioRef().nativeElement.pause();
+  this.autoPlaySongState.set(false);
+  this.devicesConfigService.stopBackState();
+}
+```
+
+</CodeGroup>
+
+### Track navigation
+
+Navigate between tracks with next and previous functionality:
+
+```typescript
+public changeSongNext(): void {
+  if (this.listSongs().length <= 1) {
+    this.selectedSong().isPlaying = true;
+    this.updateMediaSessionMetadata();
+    return;
+  }
+
+  const typePlay = this.currentTypePlay();
+  const currentIndex = this.listSongs().indexOf(this.selectedSong());
+  let nextIndex = 0;
+  const currentSong = this.selectedSong();
+
+  if (currentSong) {
+    currentSong.isPlaying = false;
+  }
+
+  switch (typePlay) {
+    case TypePlayEnum.SHUFFLE:
+      let randomIndex = 0;
+      do {
+        randomIndex = Math.floor(Math.random() * this.listSongs().length);
+      } while (randomIndex === currentIndex);
+      nextIndex = randomIndex;
+      break;
+
+    case TypePlayEnum.REPEAT:
+      if (currentIndex < this.listSongs().length - 1) {
+        nextIndex = currentIndex + 1;
+      } else {
+        nextIndex = 0;
+      }
+      break;
+
+    default:
+      if (currentIndex < this.listSongs().length - 1) {
+        nextIndex = currentIndex + 1;
+      } else {
+        nextIndex = 0;
+      }
+      break;
+  }
+
+  this.selectedSong.set(this.listSongs()[nextIndex]);
+  this.selectedSong().isPlaying = true;
+  this.updateMediaSessionMetadata();
+}
+```
+
+<Info>
+The `changeSongBack()` method works similarly but navigates to the previous track.
+</Info>
+
+## Playback modes
+
+The player supports three playback modes:
+
+<Steps>
+
+<Step title="Shuffle mode">
+Plays tracks in random order, avoiding immediate repeats of the current track.
+
+```typescript
+case TypePlayEnum.SHUFFLE:
+  let randomIndex = 0;
+  do {
+    randomIndex = Math.floor(Math.random() * this.listSongs().length);
+  } while (randomIndex === currentIndex);
+  nextIndex = randomIndex;
+  break;
+```
+</Step>
+
+<Step title="Repeat mode">
+Plays tracks sequentially and loops back to the beginning when the last track finishes.
+
+```typescript
+case TypePlayEnum.REPEAT:
+  if (currentIndex < this.listSongs().length - 1) {
+    nextIndex = currentIndex + 1;
+  } else {
+    nextIndex = 0;
+  }
+  break;
+```
+</Step>
+
+<Step title="Normal mode">
+Plays tracks sequentially without looping.
+</Step>
+
+</Steps>
+
+## Volume and time controls
+
+### Volume control
+
+The player includes volume control with visual feedback:
+
+```typescript
+protected onVolumeChange(): void {
+  if (this.audioRef && this.volumeRangeRef) {
+    this.audioRef.nativeElement.volume = this.volumeValue / 100;
+    this.updateRangeBackgroundVolume();
+    this.audioPlayCurrent.volumeState = this.volumeValue > 0;
+  }
+}
+
+protected updateRangeBackgroundVolume(): void {
+  if (this.volumeRangeRef && this.volumeRangeRef.nativeElement) {
+    const inputElement = this.volumeRangeRef.nativeElement;
+    const progress = this.volumeValue;
+    inputElement.style.setProperty('--range-progress', `${progress}%`);
+  }
+}
+```
+
+### Time progress
+
+Track the current playback position and total duration:
+
+```typescript
+protected updateProgress(): void {
+  if (this.audioRef && this.audioRef.nativeElement) {
+    const currentTime = this.audioRef.nativeElement.currentTime;
+    const duration = this.audioRef.nativeElement.duration;
+
+    this.currentTime = this.formatTime(currentTime);
+    if (!isNaN(duration) && duration > 0) {
+      this.timeValue = (currentTime / duration) * 100;
+    } else {
+      this.timeValue = 0;
+    }
+    this.updateRangeBackgroundTime();
+  }
+}
+
+protected formatTime(seconds: number): string {
+  if (isNaN(seconds)) {
+    return '0:00';
+  }
+  const minutes = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+}
+```
+
+## Media session API
+
+The player integrates with the browser's Media Session API for system-level controls:
+
+```typescript
+public setupMediaSessionHandlers(
+  playAudio: Function,
+  stopAudio: Function,
+  changeSongNext: Function,
+  changeSongBack: Function
+): void {
+  this.devicesConfigService.setMediaSessionHandlers(
+    () => playAudio(),
+    () => stopAudio(),
+    () => changeSongNext(),
+    () => changeSongBack()
+  );
+}
+
+private updateMediaSessionMetadata(): void {
+  const song = this.selectedSong();
+  if (song && song.name && song.artist) {
+    const artwork: string[] = song.image ? [song.image] : [];
+    this.devicesConfigService.setMediaSessionMetadata(
+      song.name,
+      song.artist,
+      song.album,
+      artwork
+    );
+  }
+}
+```
+
+<Note>
+The Media Session API allows users to control playback from system media controls, lock screens, and notification areas.
+</Note>
+
+## Song data model
+
+The player uses the following Song interface:
+
+```typescript
+export interface Song {
+  id: string
+  name: string;
+  image: string;
+  description: string;
+  audio: string;
+  artist: string;
+  album: string;
+  year: number;
+  gender: string;
+  rating: number;
+  isFavorite: boolean;
+  isPlaying: boolean;
+}
+```
+
+## Favorite functionality
+
+Toggle favorite status for songs:
+
+```typescript
+public changeFavoriteSong(): void {
+  this.selectedSong().isFavorite = !this.selectedSong().isFavorite;
+}
+
+public changeFavoriteSonSelected(song: Song): void {
+  song.isFavorite = !song.isFavorite;
+}
+```
+
+## Responsive design
+
+The player provides different layouts for desktop and mobile:
+
+- **Desktop**: Full controls with volume slider and time scrubber visible
+- **Mobile**: Collapsible interface with expandable menu for volume control
+
+```html
+<div class="container-mobile">
+  <div class="container-header-mobile">
+    @if (this.stateMusicService.stateMusicPlayerService.activateMenu()) {
+      <i (click)="this.stateMusicService.stateMusicPlayerService.activateMenu.set(false)" 
+         class="fa-solid fa-chevron-down"></i>
+    } @else {
+      <i (click)="this.stateMusicService.stateMusicPlayerService.activateMenu.set(true)" 
+         class="fa-solid fa-chevron-up i-menu"></i>
+    }
+  </div>
+</div>
+```

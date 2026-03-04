@@ -1,0 +1,97 @@
+---
+title: Introduction to Cinemusic
+description: Discover Cinemusic, an Angular 19 web application for exploring and playing cinema-inspired music with multilingual support and modern features.
+---
+
+## What is Cinemusic?
+
+Cinemusic is an interactive web platform where you can explore, discover, and play music inspired by cinema and more. Built with Angular 19, Cinemusic delivers an immersive experience through a modern interface, intuitive navigation, and comprehensive multilingual support.
+
+<Info>
+  Cinemusic is live at [juanpabloleonf.github.io/cinemusic](https://juanpabloleonf.github.io/cinemusic/)
+</Info>
+
+## Key features
+
+Cinemusic combines powerful functionality with an elegant user experience:
+
+<CardGroup cols={2}>
+  <Card title="Integrated music player" icon="music">
+    Play songs through an advanced and intuitive music player with full playback controls
+  </Card>
+  <Card title="Multilingual support" icon="globe">
+    Switch between languages seamlessly with built-in internationalization using ngx-translate
+  </Card>
+  <Card title="Responsive design" icon="mobile">
+    Enjoy an attractive, responsive interface that works beautifully on any device
+  </Card>
+  <Card title="Modular architecture" icon="cube">
+    Built on a scalable, modular architecture that makes extending components and pages easy
+  </Card>
+</CardGroup>
+
+## What you can do
+
+With Cinemusic, you can:
+
+- Browse different music sections including albums, playlists, and categories
+- Create and manage custom playlists
+- Play songs with an advanced music player
+- Explore series and content organized by genre
+- Switch between Spanish and English interfaces
+- Enjoy smooth animations and transitions throughout the app
+
+## Who is Cinemusic for?
+
+Cinemusic is perfect for:
+
+- **Music enthusiasts** who want to discover cinema-inspired soundtracks and music
+- **Developers** looking to learn modern Angular patterns and architecture
+- **Students** studying web development with Angular and TypeScript
+- **Teams** seeking a reference implementation of Angular best practices
+
+## Technology stack
+
+Cinemusic is built with modern web technologies:
+
+- **Angular 19.1** - Latest version of the Angular framework
+- **TypeScript 5.7** - Type-safe JavaScript development
+- **RxJS 7.8** - Reactive programming with observables
+- **ngx-translate** - Internationalization and localization
+- **Karma & Jasmine** - Comprehensive testing framework
+- **HTML5 & CSS3** - Modern web standards
+
+<Note>
+  Cinemusic follows continuous integration and continuous deployment (CI/CD) practices, ensuring automated testing, validation, and reliable deployments to production.
+</Note>
+
+## Architecture overview
+
+The application follows a clean, domain-driven architecture:
+
+```
+src/app/
+├── domain/           # Business logic and models
+│   ├── models/       # Domain models (music, series)
+│   ├── services/     # Business services
+│   ├── states/       # State management
+│   ├── interceptors/ # HTTP interceptors
+│   └── mappers/      # Data transformation
+└── ui/               # Presentation layer
+    ├── pages/        # Feature pages (music, series)
+    ├── components/   # Reusable UI components
+    └── animations/   # Animation definitions
+```
+
+This separation ensures maintainability, testability, and scalability as your application grows.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/installation">
+    Set up your development environment and install Cinemusic
+  </Card>
+  <Card title="Quick start" icon="rocket" href="/quickstart">
+    Get the app running locally in just a few minutes
+  </Card>
+</CardGroup>

@@ -1,0 +1,269 @@
+---
+title: Artist browsing
+description: Browse music by artists, genres, and discover new content through organized categories
+---
+
+Cinemusic provides multiple ways to browse and discover music through artists, genres, and curated sections.
+
+## Artist browsing
+
+### Artist data model
+
+Artists in Cinemusic are represented with the following interface:
+
+```typescript
+export interface Artis {
+  id: string;
+  name: string;
+  image: string;
+  gender: string;
+  song: string;
+  numberPerson: number
+}
+```
+
+**Fields**:
+- `id`: Unique identifier for the artist
+- `name`: Artist's name
+- `image`: URL to the artist's image
+- `gender`: Music genre associated with the artist
+- `song`: Featured song or latest track
+- `numberPerson`: Number of followers or popularity metric
+
+### Artist state management
+
+The `StateSectionArtistsService` manages the selected artist:
+
+```typescript
+export class StateSectionArtistsService {
+  public selectedArtist: WritableSignal<Artis> = signal<Artis>({} as Artis);
+}
+```
+
+<Note>
+The selected artist state is used to display artist details and filter their songs.
+</Note>
+
+## Genre browsing
+
+### Genre data model
+
+```typescript
+export interface Gender {
+  id: string
+  name: string;
+  numberPerson: number;
+  image: string;
+}
+```
+
+**Fields**:
+- `id`: Unique identifier for the genre
+- `name`: Genre name (e.g., "Rock", "Jazz", "Pop")
+- `numberPerson`: Number of songs or popularity in this genre
+- `image`: Visual representation of the genre
+
+### Available genres
+
+Cinemusic supports the following music genres:
+
+```typescript
+export enum CategoriesEnum {
+  ALL = "ALL",
+  POP = "POP",
+  ROCK = "ROCK",
+  HIP_HOP = "HIP HOP",
+  ELECTRONIC = "ELECTRONIC",
+  RAP = "RAP",
+  JAZZ = "JAZZ",
+  BLUES = "BLUES",
+  COUNTRY = "COUNTRY",
+  RNB = "RNB",
+  REGGAE = "REGGAE",
+  METAL = "METAL",
+}
+```
+
+## Browsing sections
+
+Cinemusic organizes content into multiple browsing sections:
+
+<Tabs>
+  <Tab title="Artists">
+    Browse by your favorite artists and discover their music catalog.
+    
+    ```typescript
+    // State service for artists section
+    export class StateSectionArtistsService {
+      public selectedArtist: WritableSignal<Artis> = signal<Artis>({} as Artis);
+    }
+    ```
+  </Tab>
+  
+  <Tab title="New music">
+    Discover recently added music and latest releases.
+    
+    Managed by `StateSectionNewMusicService`.
+  </Tab>
+  
+  <Tab title="Trends">
+    Explore trending songs and popular music.
+    
+    Managed by `StateSectionTrendsService`.
+  </Tab>
+  
+  <Tab title="Playlists">
+    Browse curated playlists and user-created collections.
+    
+    Managed by `StateSectionPlayListService`.
+  </Tab>
+</Tabs>
+
+## Search by category
+
+### Category search interface
+
+```typescript
+export interface TypeSearch {
+  type: String;
+  value: String;
+}
+
+export enum TypeSearchEnum {
+  CATEGORY = "CATEGORY",
+  SEARCH = "SEARCH",
+  ARTIST = "ARTIST",
+}
+```
+
+### Filtering by category
+
+Switch to category browsing mode:
+
+```typescript
+public setStateElements(data: string): void {
+  if (data === TypeSearchEnum.CATEGORY) {
+    this.activationSong.set(false);
+    this.activationSinger.set(false);
+    this.dataSearch.set({type: TypeSearchEnum.CATEGORY, value: "ALL"})
+  }
+}
+```
+
+## Artist filtering
+
+### Filter by artist
+
+Activate artist filtering mode:
+
+```typescript
+public setStateElements(data: string): void {
+  if (data === TypeSearchEnum.ARTIST) {
+    this.activationSong.set(false);
+    this.activationGender.set(false);
+    this.dataSearch.set({type: TypeSearchEnum.ARTIST, value: "ALL"})
+  }
+}
+```
+
+<Steps>
+
+<Step title="Select an artist">
+Choose an artist from the artists section to filter their music.
+</Step>
+
+<Step title="View artist catalog">
+The app filters and displays all songs by the selected artist.
+</Step>
+
+<Step title="Play artist songs">
+Play songs directly from the artist's catalog or add them to playlists.
+</Step>
+
+</Steps>
+
+## Content sections structure
+
+The browsing interface is organized using a bento grid layout with dedicated sections:
+
+```
+src/app/ui/pages/music/container-bento-grid-music/
+├── section-artists/           # Artist browsing
+├── section-new-music/         # New releases
+├── section-news/              # News and updates
+├── section-other/             # Other content
+├── section-play-lists/        # Playlists
+├── section-search/            # Search interface
+└── section-trends/            # Trending content
+```
+
+## Music sections state services
+
+Each browsing section has its own state management service:
+
+<CodeGroup>
+
+```typescript Artists
+export class StateSectionArtistsService {
+  public selectedArtist: WritableSignal<Artis> = signal<Artis>({} as Artis);
+}
+```
+
+```typescript Main music
+export class StateSectionMainMusicService {
+  // Manages main music section state
+  // Includes filtering logic
+}
+```
+
+```typescript Search
+export class StateSectionSearchService {
+  public dataSearch: WritableSignal<TypeSearch> = signal<TypeSearch>({
+    type: TypeSearchEnum.SEARCH,
+    value: "ALL"
+  });
+  public activationSong: WritableSignal<boolean> = signal<boolean>(true)
+  public activationGender: WritableSignal<boolean> = signal<boolean>(false);
+  public activationSinger: WritableSignal<boolean> = signal<boolean>(false);
+}
+```
+
+</CodeGroup>
+
+## Visual components
+
+Browsing sections use custom SVG components for visual representation:
+
+- **svg-singer**: Artist icons
+- **svg-gender**: Genre icons
+- **svg-songs**: Song icons
+- **svg-play-list**: Playlist icons
+- **svg-tendency**: Trending indicators
+
+## Integration with player
+
+When browsing by artist or genre, the filtered songs are loaded into the music player:
+
+```typescript
+let listDataFiltered: Song[] = 
+  this.stateMusicService.stateSectionMainMusicService.changeFilteredSongs(this.dataSearch());
+
+if (listDataFiltered.length > 0) {
+  this.stateMusicService.stateMusicPlayerService.listSongs.set(listDataFiltered);
+}
+```
+
+This allows seamless playback of:
+- All songs by a specific artist
+- All songs in a genre
+- Filtered search results
+
+## Best practices
+
+<Info>
+**State isolation**: Each browsing section maintains its own state service, preventing conflicts and making the code more maintainable.
+</Info>
+
+<Note>
+**Type safety**: Using TypeScript interfaces for artists and genres ensures data consistency throughout the application.
+</Note>

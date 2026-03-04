@@ -1,0 +1,288 @@
+---
+title: Input components
+description: Form inputs, search fields, and select dropdowns for user data entry
+---
+
+Cinemusic provides three input components for different use cases: search inputs, form inputs with validation, and select dropdowns.
+
+## InputSearchGenericComponent
+
+A search input component that emits search queries as users type.
+
+### Component signature
+
+Location: `src/app/ui/components/input-search-generic/input-search-generic.component.ts:11`
+
+```typescript
+export class InputSearchGenericComponent {
+  public placeholder: InputSignal<string> = input<string>("placeholder");
+  public widthInput: InputSignal<string> = input<string>("100%");
+  public heightInput: InputSignal<string> = input<string>("2rem");
+  public onChangeInputData: OutputEmitterRef<TypeSearch> = output<TypeSearch>();
+}
+```
+
+### Props
+
+<ParamField path="placeholder" type="string" default="'placeholder'">
+  The placeholder text displayed when the input is empty.
+</ParamField>
+
+<ParamField path="widthInput" type="string" default="'100%'">
+  The width of the input field. Accepts any valid CSS width value.
+</ParamField>
+
+<ParamField path="heightInput" type="string" default="'2rem'">
+  The height of the input field. Accepts any valid CSS height value.
+</ParamField>
+
+### Events
+
+<ParamField path="onChangeInputData" type="OutputEmitterRef<TypeSearch>">
+  Emitted when the input value changes. Returns an object with `type` (TypeSearchEnum.SEARCH) and `value` (uppercase string).
+</ParamField>
+
+### Usage example
+
+```html
+<app-input-search-generic 
+  placeholder="Search songs, artists..." 
+  widthInput="300px" 
+  heightInput="2.5rem"
+  (onChangeInputData)="handleSearch($event)"
+/>
+```
+
+```typescript
+import { TypeSearch, TypeSearchEnum } from './domain/models/music/category';
+
+export class MyComponent {
+  handleSearch(searchData: TypeSearch) {
+    console.log('Search type:', searchData.type);
+    console.log('Search value:', searchData.value); // Already uppercase
+  }
+}
+```
+
+## InputFormGenericComponent
+
+A form input component that integrates with Angular Reactive Forms and supports validation states.
+
+### Component signature
+
+Location: `src/app/ui/components/input-form-generic/input-form-generic.component.ts:31`
+
+```typescript
+export class InputFormGenericComponent implements ControlValueAccessor {
+  public placeholder: InputSignal<string> = input<string>("placeholder");
+  public widthInput: InputSignal<string> = input<string>("100%");
+  public heightInput: InputSignal<string> = input<string>("2rem");
+  public hasError: InputSignal<boolean | undefined> = input<boolean | undefined>(false);
+}
+```
+
+### Props
+
+<ParamField path="placeholder" type="string" default="'placeholder'">
+  The placeholder text displayed when the input is empty.
+</ParamField>
+
+<ParamField path="widthInput" type="string" default="'100%'">
+  The width of the input field.
+</ParamField>
+
+<ParamField path="heightInput" type="string" default="'2rem'">
+  The height of the input field.
+</ParamField>
+
+<ParamField path="hasError" type="boolean" default="false">
+  When `true`, applies error styling to the input field.
+</ParamField>
+
+### Reactive Forms integration
+
+This component implements `ControlValueAccessor`, making it compatible with Angular Reactive Forms:
+
+```typescript
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { InputFormGenericComponent } from './ui/components/input-form-generic/input-form-generic.component';
+
+export class MyComponent {
+  listForms: FormGroup;
+
+  constructor(private fb: FormBuilder) {
+    this.listForms = this.fb.group({
+      name: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9 ]+$/)]],
+      description: ['', Validators.required]
+    });
+  }
+}
+```
+
+### Usage example with validation
+
+From `formulary-create-list-music.component.html:16`:
+
+```html
+<form [formGroup]="listForms" (ngSubmit)="submitForm()">
+  <label>
+    @if (
+      listForms.get('name')?.errors?.['required'] && 
+      listForms.get('name')?.errors?.['pattern'] &&
+      listForms.get('name')?.invalid && 
+      (listForms.get('name')?.touched || listForms.get('name')?.dirty)
+    ) {
+      <span class="error">Nombre de la lista es requerido</span>
+    } @else {
+      <span>Nombre de la lista</span>
+    }
+    <app-input-form-generic 
+      [hasError]="listForms.get('name')?.invalid && listForms.get('name')?.touched" 
+      formControlName="name" 
+      placeholder="Mi lista de reproduccion" 
+      widthInput="100%" 
+      heightInput="2.5rem" 
+    />
+  </label>
+</form>
+```
+
+## SelectOptionsComponent
+
+A custom select dropdown component with customizable styling and options.
+
+### Component signature
+
+Location: `src/app/ui/components/select-options/select-options.component.ts:10`
+
+```typescript
+export class SelectOptionsComponent implements OnInit {
+  public inputWidth: InputSignal<string> = input<string>("");
+  public inputHeight: InputSignal<string> = input<string>("");
+  public inputBorder: InputSignal<string> = input<string>("");
+  public inputColor: InputSignal<string> = input<string>("");
+  public inputBgColor: InputSignal<string> = input<string>("");
+  public textInitial: InputSignal<string> = input<string>("Texto inicial"); 
+  public inputSelectedOption: InputSignal<string> = input<string>("");
+  public inputBorderFocus: InputSignal<string> = input<string>("");
+  public inputListOptions: InputSignal<string[]> = input<string[]>([]);
+  public ouputOptionSelected: OutputEmitterRef<string> = output<string>();
+}
+```
+
+### Props
+
+<ParamField path="inputWidth" type="string" default="''">
+  The width of the select component.
+</ParamField>
+
+<ParamField path="inputHeight" type="string" default="''">
+  The height of the select component.
+</ParamField>
+
+<ParamField path="inputBorder" type="string" default="''">
+  The border style when the select is closed.
+</ParamField>
+
+<ParamField path="inputBorderFocus" type="string" default="''">
+  The border style when the select is open/focused.
+</ParamField>
+
+<ParamField path="inputColor" type="string" default="''">
+  The text color.
+</ParamField>
+
+<ParamField path="inputBgColor" type="string" default="''">
+  The background color.
+</ParamField>
+
+<ParamField path="textInitial" type="string" default="'Texto inicial'">
+  The placeholder text shown when no option is selected.
+</ParamField>
+
+<ParamField path="inputSelectedOption" type="string" default="''">
+  The initially selected option value.
+</ParamField>
+
+<ParamField path="inputListOptions" type="string[]" default="[]">
+  An array of option values to display in the dropdown.
+</ParamField>
+
+### Events
+
+<ParamField path="ouputOptionSelected" type="OutputEmitterRef<string>">
+  Emitted when an option is selected. Returns the selected option value.
+</ParamField>
+
+### Usage example
+
+```typescript
+import { Component, signal } from '@angular/core';
+import { SelectOptionsComponent } from './ui/components/select-options/select-options.component';
+
+@Component({
+  selector: 'app-filter',
+  imports: [SelectOptionsComponent],
+  template: `
+    <app-select-options
+      [inputWidth]="'200px'"
+      [inputHeight]="'40px'"
+      [inputBorder]="'1px solid #ccc'"
+      [inputBorderFocus]="'2px solid var(--primary-color)'"
+      [inputColor]="'white'"
+      [inputBgColor]="'#1a1a1a'"
+      [textInitial]="'Select genre'"
+      [inputListOptions]="genres()"
+      [inputSelectedOption]="selectedGenre()"
+      (ouputOptionSelected)="onGenreSelected($event)"
+    />
+  `
+})
+export class FilterComponent {
+  genres = signal(['Rock', 'Pop', 'Jazz', 'Classical', 'Electronic']);
+  selectedGenre = signal('');
+
+  onGenreSelected(genre: string) {
+    this.selectedGenre.set(genre);
+    console.log('Selected genre:', genre);
+  }
+}
+```
+
+## Styling
+
+All input components apply CSS classes that you can customize:
+
+```css
+/* Search and form inputs */
+.input-search {
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0.5rem;
+  color: white;
+}
+
+.input-error {
+  border-color: var(--error-color);
+}
+
+/* Select component */
+.container-select {
+  position: relative;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
+}
+
+.option:hover {
+  background-color: var(--hover-color);
+}
+```

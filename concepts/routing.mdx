@@ -1,0 +1,294 @@
+---
+title: Routing configuration
+description: Understand how Cinemusic uses Angular's router with lazy loading for efficient navigation between music and series features
+---
+
+Cinemusic uses Angular's built-in router to handle navigation between different sections of the application. All routes are configured with lazy loading to optimize bundle size and initial load time.
+
+## Route structure
+
+The application has two main feature routes: `music` and `series`, with a default redirect to music.
+
+```typescript app.routes.ts
+import { Routes } from '@angular/router';
+
+export const routes: Routes = [
+    {
+        path: 'music',
+        loadComponent: () => import('./ui/pages/music/music.component').then((c) => c.MusicComponent),
+        children: [
+            {
+                path: 'myMusic',
+                loadComponent: () => import('./ui/pages/music/section-play-list-songs/section-play-list-songs.component').then((c) => c.SectionPLayListSongsComponent)
+            }
+        ]
+    },
+    {
+        path: 'series',
+        loadComponent: () => import('./ui/pages/series/series.component').then((c) => c.SeriesComponent),
+        children: [
+            {
+                path: "gender/:gender",
+                loadComponent: () => import('./ui/pages/series/section-gender-series/section-gender-series.component').then((c) => c.SectionGenderSeriesComponent)
+            },
+            {
+                path: "serie/:id",
+                loadComponent: () => import('./ui/pages/series/serie-selected-view/serie-selected-view.component').then((c) => c.SerieSelectedViewComponent)
+            }
+        ]
+    },
+    {
+        path: "**",
+        redirectTo: "music",
+        pathMatch: "full"
+    }
+];
+```
+
+## Music routes
+
+The music section includes routes for browsing music and managing playlists.
+
+<CardGroup cols={2}>
+  <Card title="/music" icon="music">
+    Main music page with trending songs, artists, and genres
+  </Card>
+  <Card title="/music/myMusic" icon="list">
+    User's personal playlists and favorite songs
+  </Card>
+</CardGroup>
+
+### Music route hierarchy
+
+<Tabs>
+  <Tab title="Parent route">
+    **Path**: `/music`
+    
+    **Component**: `MusicComponent`
+    
+    **Purpose**: Serves as the container for all music-related features. Displays the main music interface with sections for artists, trending songs, and playlists.
+    
+    This component uses a router outlet to display child routes.
+  </Tab>
+  
+  <Tab title="Child routes">
+    **Path**: `/music/myMusic`
+    
+    **Component**: `SectionPLayListSongsComponent`
+    
+    **Purpose**: Displays the user's personal music collection including:
+    - Custom playlists
+    - Favorite songs
+    - Recently played tracks
+  </Tab>
+</Tabs>
+
+## Series routes
+
+The series section includes routes for browsing TV shows by genre and viewing individual series.
+
+<CardGroup cols={3}>
+  <Card title="/series" icon="tv">
+    Main series landing page
+  </Card>
+  <Card title="/series/gender/:gender" icon="filter">
+    Series filtered by genre
+  </Card>
+  <Card title="/series/serie/:id" icon="play">
+    Individual series details
+  </Card>
+</CardGroup>
+
+### Series route hierarchy
+
+<Tabs>
+  <Tab title="Parent route">
+    **Path**: `/series`
+    
+    **Component**: `SeriesComponent`
+    
+    **Purpose**: Main series browsing interface with categories and featured content.
+  </Tab>
+  
+  <Tab title="Genre filter">
+    **Path**: `/series/gender/:gender`
+    
+    **Component**: `SectionGenderSeriesComponent`
+    
+    **Route parameter**: `gender` - The genre to filter by (e.g., DRAMA, COMEDY, ACTION)
+    
+    **Purpose**: Displays all series matching the selected genre.
+    
+    **Example**: `/series/gender/DRAMA` shows all drama series
+  </Tab>
+  
+  <Tab title="Series detail">
+    **Path**: `/series/serie/:id`
+    
+    **Component**: `SerieSelectedViewComponent`
+    
+    **Route parameter**: `id` - Unique identifier for the series
+    
+    **Purpose**: Shows detailed information about a specific series including:
+    - Series metadata (title, description, rating)
+    - Seasons and episodes
+    - Video player
+    
+    **Example**: `/series/serie/123` shows details for series with ID 123
+  </Tab>
+</Tabs>
+
+## Lazy loading
+
+All routes use Angular's `loadComponent` function for lazy loading, which provides several benefits:
+
+<AccordionGroup>
+  <Accordion title="Reduced initial bundle size">
+    Components are only loaded when the user navigates to their route, not at application startup.
+    
+    This significantly reduces the initial JavaScript bundle that needs to be downloaded and parsed.
+  </Accordion>
+  
+  <Accordion title="Faster initial load time">
+    By splitting the application into smaller chunks, the initial page load is much faster.
+    
+    Users can start interacting with the app while other features load in the background.
+  </Accordion>
+  
+  <Accordion title="Improved performance">
+    Each feature is loaded on-demand, reducing memory usage and improving overall application performance.
+    
+    Unused features never get loaded, saving bandwidth and resources.
+  </Accordion>
+</AccordionGroup>
+
+### How lazy loading works
+
+Instead of importing components directly:
+
+```typescript
+// ❌ Eager loading - component loaded at startup
+import { MusicComponent } from './ui/pages/music/music.component';
+
+export const routes: Routes = [
+  { path: 'music', component: MusicComponent }
+];
+```
+
+Cinemusic uses dynamic imports:
+
+```typescript
+// ✅ Lazy loading - component loaded on demand
+export const routes: Routes = [
+  {
+    path: 'music',
+    loadComponent: () => import('./ui/pages/music/music.component')
+      .then((c) => c.MusicComponent)
+  }
+];
+```
+
+<Note>
+  Angular automatically creates separate JavaScript bundles for each lazy-loaded route during the build process.
+</Note>
+
+## Default route
+
+The application includes a wildcard route that redirects any unknown paths to the music section:
+
+```typescript
+{
+  path: "**",
+  redirectTo: "music",
+  pathMatch: "full"
+}
+```
+
+This ensures users always see valid content, even if they navigate to a non-existent URL.
+
+## Navigation in components
+
+To navigate between routes in your components, use Angular's Router service:
+
+```typescript
+import { Router } from '@angular/router';
+import { inject } from '@angular/core';
+
+export class MyComponent {
+  private router = inject(Router);
+  
+  navigateToMusic() {
+    this.router.navigate(['/music']);
+  }
+  
+  navigateToSeries(genreId: string) {
+    this.router.navigate(['/series/gender', genreId]);
+  }
+  
+  navigateToSeriesDetail(seriesId: string) {
+    this.router.navigate(['/series/serie', seriesId]);
+  }
+}
+```
+
+## Route parameters
+
+Access route parameters in your components using Angular's `ActivatedRoute`:
+
+<Tabs>
+  <Tab title="Reading parameters">
+    ```typescript
+    import { ActivatedRoute } from '@angular/router';
+    import { inject } from '@angular/core';
+    
+    export class SerieSelectedViewComponent {
+      private route = inject(ActivatedRoute);
+      
+      ngOnInit() {
+        // Get the series ID from the route
+        const seriesId = this.route.snapshot.paramMap.get('id');
+        
+        // Or use an observable for dynamic updates
+        this.route.paramMap.subscribe(params => {
+          const id = params.get('id');
+          // Load series data
+        });
+      }
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Genre parameter">
+    ```typescript
+    import { ActivatedRoute } from '@angular/router';
+    import { inject } from '@angular/core';
+    
+    export class SectionGenderSeriesComponent {
+      private route = inject(ActivatedRoute);
+      
+      ngOnInit() {
+        // Get the genre from the route
+        const gender = this.route.snapshot.paramMap.get('gender');
+        // Filter series by genre
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Best practices
+
+<CardGroup cols={2}>
+  <Card title="Use lazy loading" icon="rocket">
+    Always use `loadComponent` for route components to keep bundle sizes small.
+  </Card>
+  <Card title="Organize by feature" icon="folder">
+    Keep related routes grouped together with child routes when appropriate.
+  </Card>
+  <Card title="Handle unknown routes" icon="shield">
+    Use a wildcard route to handle 404 errors gracefully with redirects.
+  </Card>
+  <Card title="Type-safe navigation" icon="code">
+    Use string arrays for navigation to avoid typos: `router.navigate(['/music'])`
+  </Card>
+</CardGroup>

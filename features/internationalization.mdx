@@ -1,0 +1,337 @@
+---
+title: Internationalization
+description: Multi-language support with ngx-translate for English, Spanish, and French
+---
+
+Cinemusic implements internationalization (i18n) using `@ngx-translate/core` to support multiple languages across the application.
+
+## Supported languages
+
+Cinemusic supports three languages:
+
+- **English** (en)
+- **Spanish** (es) - Default language
+- **French** (fr)
+
+## Configuration
+
+### Installing ngx-translate
+
+The application uses `@ngx-translate/core` and `@ngx-translate/http-loader`:
+
+```bash
+npm install @ngx-translate/core @ngx-translate/http-loader
+```
+
+### Application configuration
+
+The translation service is configured in `app.config.ts`:
+
+```typescript
+import { ApplicationConfig } from '@angular/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader'
+import { TranslateLoader, provideTranslateService } from '@ngx-translate/core';
+import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
+
+const httpLoaderFactory: (http: HttpClient) => TranslateHttpLoader = (http: HttpClient) =>
+  new TranslateHttpLoader(http, './i18n/', '.json');
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideHttpClient(withInterceptors([errorInterceptor, mapperInterceptor])),
+    provideTranslateService({
+      defaultLanguage: 'es',
+      loader: {
+        provide: TranslateLoader,
+        useFactory: httpLoaderFactory,
+        deps: [HttpClient]
+      }
+    })
+  ]
+};
+```
+
+<Note>
+The default language is set to Spanish (`'es'`). Change the `defaultLanguage` property to set a different default.
+</Note>
+
+### HTTP loader configuration
+
+The `httpLoaderFactory` function configures the translation file loader:
+
+```typescript
+const httpLoaderFactory: (http: HttpClient) => TranslateHttpLoader = (http: HttpClient) =>
+  new TranslateHttpLoader(http, './i18n/', '.json');
+```
+
+**Parameters**:
+- `'./i18n/'`: Path to translation files
+- `'.json'`: File extension
+
+This configuration loads translation files from:
+- `./i18n/en.json`
+- `./i18n/es.json`
+- `./i18n/fr.json`
+
+## Translation files
+
+Translation files are located in `public/i18n/`:
+
+<Tabs>
+  <Tab title="English (en.json)">
+    ```json
+    {
+      "app": {
+        "title": "Cinemusic from {{place}}",
+        "message": "Hello world, how are you today?"
+      }
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Spanish (es.json)">
+    ```json
+    {
+      "app": {
+        "title": "Cinemusic desde {{place}}",
+        "message": "Hola mundo como estan el dia de hoy?"
+      }
+    }
+    ```
+  </Tab>
+  
+  <Tab title="French (fr.json)">
+    ```json
+    {
+      "app": {
+        "title": "Cinemusic depuis {{place}}",
+        "message": "Bonjour le monde, comment allez-vous aujourd'hui ?"
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Using translations
+
+### In TypeScript components
+
+Inject the `TranslateService` and use it in your components:
+
+```typescript
+import { Component, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+
+export class MyComponent {
+  private translate = inject(TranslateService);
+
+  constructor() {
+    // Get instant translation
+    const title = this.translate.instant('app.title', { place: 'Cinema' });
+    
+    // Get translation as Observable
+    this.translate.get('app.message').subscribe((text: string) => {
+      console.log(text);
+    });
+  }
+}
+```
+
+### In templates
+
+Use the `translate` pipe in your HTML templates:
+
+```html
+<!-- Simple translation -->
+<h1>{{ 'app.title' | translate }}</h1>
+
+<!-- Translation with parameters -->
+<h1>{{ 'app.title' | translate:{ place: 'Hollywood' } }}</h1>
+
+<!-- Translation with async pipe -->
+<p>{{ 'app.message' | translate | async }}</p>
+```
+
+## Switching languages
+
+### Change language dynamically
+
+Switch between languages at runtime:
+
+```typescript
+import { Component, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+
+export class LanguageSwitcherComponent {
+  private translate = inject(TranslateService);
+
+  switchLanguage(language: string): void {
+    this.translate.use(language);
+  }
+}
+```
+
+### Language switcher template
+
+```html
+<div class="language-switcher">
+  <button (click)="switchLanguage('en')">English</button>
+  <button (click)="switchLanguage('es')">Español</button>
+  <button (click)="switchLanguage('fr')">Français</button>
+</div>
+```
+
+## Translation key structure
+
+Organize your translation keys hierarchically:
+
+```json
+{
+  "app": {
+    "title": "Application title",
+    "message": "Welcome message"
+  },
+  "player": {
+    "play": "Play",
+    "pause": "Pause",
+    "next": "Next",
+    "previous": "Previous"
+  },
+  "playlist": {
+    "create": "Create playlist",
+    "name": "Playlist name",
+    "description": "Description"
+  }
+}
+```
+
+## Parameterized translations
+
+Use parameters for dynamic content:
+
+<Steps>
+
+<Step title="Define translation with parameters">
+```json
+{
+  "app": {
+    "title": "Cinemusic from {{place}}",
+    "greeting": "Hello {{name}}, you have {{count}} songs"
+  }
+}
+```
+</Step>
+
+<Step title="Use in TypeScript">
+```typescript
+const message = this.translate.instant('app.greeting', {
+  name: 'John',
+  count: 42
+});
+// Output: "Hello John, you have 42 songs"
+```
+</Step>
+
+<Step title="Use in templates">
+```html
+<h1>{{ 'app.title' | translate:{ place: 'Hollywood' } }}</h1>
+```
+</Step>
+
+</Steps>
+
+## Best practices
+
+<Info>
+**Consistent keys**: Use a consistent naming convention for translation keys (e.g., `section.subsection.key`).
+</Info>
+
+<Note>
+**Default values**: Always provide a default language to prevent missing translation errors.
+</Note>
+
+### File organization
+
+Organize translation files by feature:
+
+```
+public/i18n/
+├── en.json
+├── es.json
+└── fr.json
+```
+
+For larger applications, consider splitting by feature:
+
+```json
+{
+  "common": { },
+  "player": { },
+  "playlist": { },
+  "search": { },
+  "artist": { }
+}
+```
+
+## Error handling
+
+Handle missing translations gracefully:
+
+```typescript
+import { TranslateService, MissingTranslationHandler, MissingTranslationHandlerParams } from '@ngx-translate/core';
+
+export class CustomMissingTranslationHandler implements MissingTranslationHandler {
+  handle(params: MissingTranslationHandlerParams) {
+    console.warn(`Missing translation for key: ${params.key}`);
+    return params.key;
+  }
+}
+```
+
+Register the handler in your configuration:
+
+```typescript
+provideTranslateService({
+  defaultLanguage: 'es',
+  missingTranslationHandler: {
+    provide: MissingTranslationHandler,
+    useClass: CustomMissingTranslationHandler
+  },
+  loader: {
+    provide: TranslateLoader,
+    useFactory: httpLoaderFactory,
+    deps: [HttpClient]
+  }
+})
+```
+
+## Adding new languages
+
+<Steps>
+
+<Step title="Create translation file">
+Create a new JSON file in `public/i18n/` (e.g., `de.json` for German):
+
+```json
+{
+  "app": {
+    "title": "Cinemusic aus {{place}}",
+    "message": "Hallo Welt, wie geht es dir heute?"
+  }
+}
+```
+</Step>
+
+<Step title="Update available languages">
+Make the language available in your language switcher component.
+</Step>
+
+<Step title="Test translations">
+Switch to the new language and verify all translations are working:
+
+```typescript
+this.translate.use('de');
+```
+</Step>
+
+</Steps>

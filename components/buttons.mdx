@@ -1,0 +1,167 @@
+---
+title: Button components
+description: Reusable button components with customizable text, actions, and styles
+---
+
+The `ButtonGenericComponent` is a versatile button component that provides a clean interface for triggering actions in your application.
+
+## ButtonGenericComponent
+
+A generic button component with customizable dimensions, text, and click handlers.
+
+### Component signature
+
+Location: `src/app/ui/components/button-generic/button-generic.component.ts:10`
+
+```typescript
+export class ButtonGenericComponent {
+  public width: InputSignal<String> = input<String>('100%');
+  public height: InputSignal<String> = input<String>('100%');
+  public buttonText: InputSignal<String> = input<String>('Boton');
+  public typeButton: InputSignal<String> = input<String>('button');
+  public actionClick: OutputEmitterRef<void> = output<void>();
+}
+```
+
+### Props
+
+<ParamField path="width" type="string" default="'100%'">
+  The width of the button. Accepts any valid CSS width value.
+</ParamField>
+
+<ParamField path="height" type="string" default="'100%'">
+  The height of the button. Accepts any valid CSS height value.
+</ParamField>
+
+<ParamField path="buttonText" type="string" default="'Boton'">
+  The text displayed inside the button.
+</ParamField>
+
+<ParamField path="typeButton" type="string" default="'button'">
+  The HTML button type. Common values are `'button'`, `'submit'`, or `'reset'`.
+</ParamField>
+
+### Events
+
+<ParamField path="actionClick" type="OutputEmitterRef<void>">
+  Emitted when the button is clicked. Bind to this output to handle button click events.
+</ParamField>
+
+## Usage examples
+
+### Basic button
+
+```html
+<app-button-generic 
+  buttonText="Click me" 
+  (actionClick)="handleClick()"
+/>
+```
+
+### Custom dimensions
+
+```html
+<app-button-generic 
+  buttonText="reproducir" 
+  width="fit-content" 
+  height="2.5rem" 
+  typeButton="button"
+  (actionClick)="onClickPlay()"
+/>
+```
+
+### Submit button in forms
+
+From `formulary-create-list-music.component.html:33`:
+
+```html
+<form [formGroup]="listForms" (ngSubmit)="submitForm()">
+  <!-- form fields -->
+  <div>
+    <app-button-generic 
+      buttonText="Cancelar" 
+      (actionClick)="cancel()" 
+    />
+    <app-button-generic 
+      buttonText="Crear lista" 
+      typeButton="submit" 
+    />
+  </div>
+</form>
+```
+
+### Multiple buttons with actions
+
+```html
+<div class="button-group">
+  <app-button-generic 
+    buttonText="Save" 
+    width="120px" 
+    height="40px"
+    (actionClick)="save()"
+  />
+  <app-button-generic 
+    buttonText="Cancel" 
+    width="120px" 
+    height="40px"
+    (actionClick)="cancel()"
+  />
+</div>
+```
+
+## TypeScript integration
+
+To use the button component in your Angular component:
+
+```typescript
+import { Component } from '@angular/core';
+import { ButtonGenericComponent } from './ui/components/button-generic/button-generic.component';
+
+@Component({
+  selector: 'app-my-component',
+  imports: [ButtonGenericComponent],
+  template: `
+    <app-button-generic 
+      buttonText="Save Changes" 
+      width="200px"
+      height="45px"
+      typeButton="button"
+      (actionClick)="saveChanges()"
+    />
+  `
+})
+export class MyComponent {
+  saveChanges() {
+    console.log('Saving changes...');
+    // Your save logic here
+  }
+}
+```
+
+## Styling
+
+The button component applies the `button-generic` CSS class. You can customize the appearance by targeting this class in your stylesheets:
+
+```css
+.button-generic {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.button-generic:hover {
+  background-color: var(--primary-color-dark);
+}
+```
+
+## Best practices
+
+- Use `typeButton="submit"` for form submission buttons
+- Use `typeButton="button"` for action buttons that don't submit forms
+- Set appropriate `width` values like `"fit-content"` for buttons with varying text lengths
+- Always bind to the `actionClick` event to handle user interactions
+- Use descriptive button text that clearly indicates the action

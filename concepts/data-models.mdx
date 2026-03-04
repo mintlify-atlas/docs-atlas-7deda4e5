@@ -1,0 +1,622 @@
+---
+title: Data models
+description: Reference for TypeScript interfaces and types that define the data structures used throughout Cinemusic
+---
+
+Cinemusic uses strongly-typed TypeScript interfaces to ensure data consistency across the application. All models are located in `domain/models/`.
+
+## Music models
+
+Models for the music domain are located in `domain/models/music/`.
+
+### Artist
+
+Represents a music artist with their profile information.
+
+```typescript artis.ts
+export interface Artis {
+    id: string;
+    name: string;
+    image: string;
+    gender: string;
+    song: string;
+    numberPerson: number;
+}
+```
+
+<AccordionGroup>
+  <Accordion title="Field descriptions">
+    | Field | Type | Description |
+    |-------|------|-------------|
+    | `id` | `string` | Unique identifier for the artist |
+    | `name` | `string` | Artist's display name |
+    | `image` | `string` | URL to artist's profile image |
+    | `gender` | `string` | Music genre associated with the artist |
+    | `song` | `string` | Featured or most popular song |
+    | `numberPerson` | `number` | Number of listeners or followers |
+  </Accordion>
+  
+  <Accordion title="Example usage">
+    ```typescript
+    const artist: Artis = {
+      id: 'artist-123',
+      name: 'Hans Zimmer',
+      image: '/assets/artists/zimmer.jpg',
+      gender: 'Orchestral',
+      song: 'Time',
+      numberPerson: 1250000
+    };
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Song
+
+Represents a music track with all its metadata.
+
+```typescript songs.ts
+export interface Song {
+    id: string;
+    name: string;
+    image: string;
+    description: string;
+    audio: string;
+    artist: string;
+    album: string;
+    year: number;
+    gender: string;
+    rating: number;
+    isFavorite: boolean;
+    isPlaying: boolean;
+}
+```
+
+<AccordionGroup>
+  <Accordion title="Field descriptions">
+    | Field | Type | Description |
+    |-------|------|-------------|
+    | `id` | `string` | Unique identifier for the song |
+    | `name` | `string` | Song title |
+    | `image` | `string` | URL to album artwork or cover image |
+    | `description` | `string` | Song description or notes |
+    | `audio` | `string` | URL to the audio file |
+    | `artist` | `string` | Artist name |
+    | `album` | `string` | Album name |
+    | `year` | `number` | Release year |
+    | `gender` | `string` | Music genre |
+    | `rating` | `number` | User rating or popularity score |
+    | `isFavorite` | `boolean` | Whether user marked as favorite |
+    | `isPlaying` | `boolean` | Current playback status |
+  </Accordion>
+  
+  <Accordion title="Example usage">
+    ```typescript
+    const song: Song = {
+      id: 'song-456',
+      name: 'Cornfield Chase',
+      image: '/assets/albums/interstellar.jpg',
+      description: 'Epic orchestral piece from Interstellar',
+      audio: '/assets/audio/cornfield-chase.mp3',
+      artist: 'Hans Zimmer',
+      album: 'Interstellar OST',
+      year: 2014,
+      gender: 'Orchestral',
+      rating: 4.8,
+      isFavorite: true,
+      isPlaying: false
+    };
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Song enums
+
+Utility enums for song operations:
+
+<Tabs>
+  <Tab title="CardOptionsConst">
+    ```typescript songs.ts
+    export enum CardOptionsConst {
+        SHARE = "share",
+        FAVORITE = "favorite",
+        PLAYLIST = "playlist",
+        DELETE = "delete",
+    }
+    ```
+    
+    Defines the available actions for song cards in the UI:
+    - `SHARE` - Share song with others
+    - `FAVORITE` - Add/remove from favorites
+    - `PLAYLIST` - Add to playlist
+    - `DELETE` - Remove song
+  </Tab>
+  
+  <Tab title="TypePlayEnum">
+    ```typescript songs.ts
+    export enum TypePlayEnum {
+       SHUFFLE = "shuffle",
+       REPEAT = "repeat",
+       PLAY =  "play",
+       STOP = "stop"
+    }
+    ```
+    
+    Defines playback modes for the music player:
+    - `SHUFFLE` - Random play order
+    - `REPEAT` - Loop current song/playlist
+    - `PLAY` - Normal playback
+    - `STOP` - Stop playback
+  </Tab>
+</Tabs>
+
+### PlayList and ListSongs
+
+Interfaces for managing user playlists.
+
+```typescript play-list.ts
+import { Song } from "./songs";
+
+export interface PlayList {
+    id: string;
+    quantityFavorite: number;
+    quantitySongsTotals: number;
+    quantityPlayList: number;
+}
+
+export interface ListSongs {
+    id: string;
+    name: string;
+    description: string;
+    image: string;
+    listSongs: Song[];
+    durationList: string;
+}
+```
+
+<Tabs>
+  <Tab title="PlayList">
+    **Purpose**: Stores aggregate playlist statistics
+    
+    | Field | Type | Description |
+    |-------|------|-------------|
+    | `id` | `string` | Playlist identifier |
+    | `quantityFavorite` | `number` | Number of favorite songs |
+    | `quantitySongsTotals` | `number` | Total songs across all playlists |
+    | `quantityPlayList` | `number` | Number of playlists created |
+    
+    **Example**:
+    ```typescript
+    const playlistData: PlayList = {
+      id: 'user-playlist-meta',
+      quantityFavorite: 42,
+      quantitySongsTotals: 156,
+      quantityPlayList: 8
+    };
+    ```
+  </Tab>
+  
+  <Tab title="ListSongs">
+    **Purpose**: Represents an individual playlist with its songs
+    
+    | Field | Type | Description |
+    |-------|------|-------------|
+    | `id` | `string` | Playlist identifier |
+    | `name` | `string` | Playlist name |
+    | `description` | `string` | Playlist description |
+    | `image` | `string` | Playlist cover image URL |
+    | `listSongs` | `Song[]` | Array of songs in the playlist |
+    | `durationList` | `string` | Total duration (e.g., "2h 15m") |
+    
+    **Example**:
+    ```typescript
+    const playlist: ListSongs = {
+      id: 'playlist-789',
+      name: 'Epic Soundtracks',
+      description: 'Best movie soundtracks',
+      image: '/assets/playlists/epic.jpg',
+      listSongs: [song1, song2, song3],
+      durationList: '1h 45m'
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Gender (Genre)
+
+Represents a music genre category.
+
+```typescript gender.ts
+export interface Gender {
+    id: string;
+    name: string;
+    numberPerson: number;
+    image: string;
+}
+```
+
+<AccordionGroup>
+  <Accordion title="Field descriptions">
+    | Field | Type | Description |
+    |-------|------|-------------|
+    | `id` | `string` | Unique genre identifier |
+    | `name` | `string` | Genre name (e.g., "Rock", "Jazz") |
+    | `numberPerson` | `number` | Number of listeners for this genre |
+    | `image` | `string` | Genre representative image URL |
+  </Accordion>
+  
+  <Accordion title="Example usage">
+    ```typescript
+    const genre: Gender = {
+      id: 'genre-orchestral',
+      name: 'Orchestral',
+      numberPerson: 850000,
+      image: '/assets/genres/orchestral.jpg'
+    };
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Category and search types
+
+Interfaces for search and filtering functionality.
+
+```typescript category.ts
+export interface Category {
+    name: String;
+}
+
+export interface TypeSearch {
+    type: String;
+    value: String;
+}
+
+export interface TypeSvgSearch {
+    category: boolean;
+    search: boolean;
+    artist: boolean;
+}
+```
+
+<Tabs>
+  <Tab title="Category">
+    Simple interface for category representation:
+    ```typescript
+    const category: Category = {
+      name: 'POP'
+    };
+    ```
+  </Tab>
+  
+  <Tab title="TypeSearch">
+    Represents a search query with type:
+    ```typescript
+    const search: TypeSearch = {
+      type: 'ARTIST',
+      value: 'Hans Zimmer'
+    };
+    ```
+  </Tab>
+  
+  <Tab title="TypeSvgSearch">
+    Controls which search icons to display:
+    ```typescript
+    const searchUI: TypeSvgSearch = {
+      category: true,
+      search: false,
+      artist: true
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Category enums
+
+<Tabs>
+  <Tab title="TypeSearchEnum">
+    ```typescript category.ts
+    export enum TypeSearchEnum {
+        CATEGORY = "CATEGORY",
+        SEARCH = "SEARCH",
+        ARTIST = "ARTIST",
+    }
+    ```
+    
+    Defines the types of searches available:
+    - `CATEGORY` - Search by music category
+    - `SEARCH` - General text search
+    - `ARTIST` - Search by artist name
+  </Tab>
+  
+  <Tab title="CategoriesEnum">
+    ```typescript category.ts
+    export enum CategoriesEnum {
+        ALL = "ALL",
+        POP = "POP",
+        ROCK = "ROCK",
+        HIP_HOP = "HIP HOP",
+        ELECTRONIC = "ELECTRONIC",
+        RAP = "RAP",
+        JAZZ = "JAZZ",
+        BLUES = "BLUES",
+        COUNTRY = "COUNTRY",
+        RNB = "RNB",
+        REGGAE = "REGGAE",
+        METAL = "METAL",
+    }
+    ```
+    
+    Lists all available music categories for filtering.
+  </Tab>
+</Tabs>
+
+## Series models
+
+Models for the TV series domain are located in `domain/models/series/`.
+
+### Series, Season, and Chapter
+
+Hierarchical structure for TV series content.
+
+```typescript series.ts
+export interface Series {
+    id: string;
+    name: string;
+    image: string;
+    description: string;
+    year: number;
+    gender: string;
+    rating: number;
+    seasons?: Season[];
+}
+
+export interface Season {
+    seasonNumber: number;
+    chapters: Chapter[];
+    id: string;
+    name: string;
+    image: string;
+    description: string;
+}
+
+export interface Chapter {
+    chapterNumber: number;
+    video: string;
+    id: string;
+    name: string;
+    image: string;
+    description: string;
+    idSeason: string;
+}
+```
+
+<Tabs>
+  <Tab title="Series">
+    **Purpose**: Represents a TV series
+    
+    | Field | Type | Description |
+    |-------|------|-------------|
+    | `id` | `string` | Unique series identifier |
+    | `name` | `string` | Series title |
+    | `image` | `string` | Series poster/cover image |
+    | `description` | `string` | Series synopsis |
+    | `year` | `number` | Release year |
+    | `gender` | `string` | Genre (Drama, Comedy, etc.) |
+    | `rating` | `number` | User rating |
+    | `seasons` | `Season[]` | Optional array of seasons |
+    
+    **Example**:
+    ```typescript
+    const series: Series = {
+      id: 'series-001',
+      name: 'The Crown',
+      image: '/assets/series/crown.jpg',
+      description: 'Story of Queen Elizabeth II',
+      year: 2016,
+      gender: 'DRAMA',
+      rating: 4.5,
+      seasons: [season1, season2]
+    };
+    ```
+  </Tab>
+  
+  <Tab title="Season">
+    **Purpose**: Represents a season within a series
+    
+    | Field | Type | Description |
+    |-------|------|-------------|
+    | `seasonNumber` | `number` | Season number (1, 2, etc.) |
+    | `chapters` | `Chapter[]` | Episodes in this season |
+    | `id` | `string` | Season identifier |
+    | `name` | `string` | Season title |
+    | `image` | `string` | Season cover image |
+    | `description` | `string` | Season synopsis |
+    
+    **Example**:
+    ```typescript
+    const season: Season = {
+      seasonNumber: 1,
+      chapters: [chapter1, chapter2],
+      id: 'season-001',
+      name: 'Season 1',
+      image: '/assets/seasons/s1.jpg',
+      description: 'First season chronicles...'
+    };
+    ```
+  </Tab>
+  
+  <Tab title="Chapter">
+    **Purpose**: Represents an episode within a season
+    
+    | Field | Type | Description |
+    |-------|------|-------------|
+    | `chapterNumber` | `number` | Episode number |
+    | `video` | `string` | URL to video file |
+    | `id` | `string` | Episode identifier |
+    | `name` | `string` | Episode title |
+    | `image` | `string` | Episode thumbnail |
+    | `description` | `string` | Episode synopsis |
+    | `idSeason` | `string` | Parent season ID |
+    
+    **Example**:
+    ```typescript
+    const chapter: Chapter = {
+      chapterNumber: 1,
+      video: '/assets/videos/ep1.mp4',
+      id: 'chapter-001',
+      name: 'Wolferton Splash',
+      image: '/assets/episodes/ep1.jpg',
+      description: 'Elizabeth marries Philip',
+      idSeason: 'season-001'
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Series genre enum
+
+```typescript gender.ts
+export enum GenderEnum {
+    TERROR = "TERROR",
+    COMEDY = "COMEDIA",
+    DRAMA = "DRAMA",
+    ROMANCE = "ROMANCE",
+    ACTION = "ACCION",
+    SCIENCE_FICTION = "CIENCIA FICCION",
+    HORROR = "HORROR",
+    THRILLER = "THRILLER",
+    CRIME = "CRIMENES",
+    MYSTERY = "MISTERIO",
+    DOCUMENTARY = "DOCUMENTAL",
+    BIOGRAPHY = "BIOGRAFIA",
+    HISTORY = "HISTORIA",
+    WAR = "GUERRA",
+    WESTERN = "OESTE",
+    FAMILY = "FAMILIA",
+    ADVENTURE = "AVENTURA",
+    ANIMATION = "ANIMACION",
+    MUSIC = "MUSICA",
+    SPORT = "DEPORTES",
+    NEWS = "NOTICIAS",
+    REALITY = "REALIDAD",
+    GAME_SHOW = "JUEGOS",
+    TALK_SHOW = "CHARLAS",
+}
+
+export const listAllGenders: string[] = [
+    GenderEnum.TERROR,
+    GenderEnum.COMEDY,
+    // ... all genres
+];
+```
+
+<Note>
+  The `listAllGenders` array provides easy access to all genre values for UI dropdowns and filters.
+</Note>
+
+## Data mappers
+
+Mappers transform raw JSON data into typed models. They're located in `domain/mappers/`.
+
+### Artist mapper
+
+```typescript mapper_artist.ts
+import { Artis } from "../../models/music/artis";
+
+export class MapperArtist {
+    public static fromJsonToArtist(json: any): Artis {
+        return {
+            id: json.id,
+            name: json.name,
+            image: json.image,
+            gender: json.gender,
+            song: json.song,
+            numberPerson: json.numberPerson
+        };
+    }
+
+    public static fromJsonArrayToArtis(body: unknown): Artis[] {
+        if (Array.isArray(body)) {
+            return body.map(jsonItem => this.fromJsonToArtist(jsonItem));
+        }
+        return [];
+    }
+}
+```
+
+### Song mapper
+
+```typescript mappers_songs.ts
+import { Song } from '../../models/music/songs';
+
+export class SongMapper {
+
+  public static fromJsonToSong(json: any): Song {
+    return {
+      id: json.id,
+      name: json.name,
+      image: json.image,
+      description: json.description,
+      audio: json.audio,
+      artist: json.artist,
+      album: json.album,
+      year: json.year,
+      gender: json.gender,
+      rating: json.rating,
+      isFavorite: json.isFavorite,
+      isPlaying: json.isPlaying,
+    };
+  }
+
+  public static fromJsonArrayToSongs(body: unknown): Song[] {
+    if (Array.isArray(body)) {
+      return body.map(jsonItem => this.fromJsonToSong(jsonItem));
+    }
+    return [];
+  }
+}
+```
+
+<AccordionGroup>
+  <Accordion title="Why use mappers?">
+    - **Type safety**: Ensures API data matches TypeScript interfaces
+    - **Validation**: Can add validation logic in one place
+    - **Transformation**: Convert field names or data formats
+    - **Error handling**: Handle missing or malformed data gracefully
+    - **Maintainability**: Changes to API structure only require updating mappers
+  </Accordion>
+  
+  <Accordion title="Usage in services">
+    ```typescript
+    import { SongMapper } from './mappers/music/mappers_songs';
+    
+    getSongs(): Observable<Song[]> {
+      return this.http.get('api/songs').pipe(
+        map(response => SongMapper.fromJsonArrayToSongs(response))
+      );
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Best practices
+
+<CardGroup cols={2}>
+  <Card title="Use interfaces" icon="code">
+    Always define interfaces for data structures to catch errors at compile time.
+  </Card>
+  <Card title="Keep models simple" icon="file">
+    Models should only contain data, no business logic or methods.
+  </Card>
+  <Card title="Use enums" icon="list">
+    Define enums for fixed sets of values (genres, playback modes, etc.).
+  </Card>
+  <Card title="Separate concerns" icon="layer-group">
+    Keep music and series models in separate directories.
+  </Card>
+  <Card title="Use mappers" icon="shuffle">
+    Always transform API responses through mappers for type safety.
+  </Card>
+  <Card title="Document fields" icon="book">
+    Add JSDoc comments to complex interfaces for better IDE support.
+  </Card>
+</CardGroup>

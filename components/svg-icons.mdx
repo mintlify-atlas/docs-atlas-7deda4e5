@@ -1,0 +1,378 @@
+---
+title: SVG icon components
+description: Scalable vector icon components with dynamic sizing, colors, and interactive states
+---
+
+Cinemusic includes a comprehensive set of SVG icon components that provide consistent, scalable icons throughout your application.
+
+## Available icons
+
+All SVG icon components follow a consistent interface with `width`, `height`, and `color` inputs:
+
+<CardGroup cols={3}>
+  <Card title="svg-play" icon="play">
+    Play button icon for media controls
+  </Card>
+  <Card title="svg-stop" icon="stop">
+    Stop button icon for media controls
+  </Card>
+  <Card title="svg-heart" icon="heart">
+    Favorite/like icon with toggle state
+  </Card>
+  <Card title="svg-search" icon="search">
+    Search icon with hover effects
+  </Card>
+  <Card title="svg-close" icon="xmark">
+    Close/dismiss icon
+  </Card>
+  <Card title="svg-back" icon="arrow-left">
+    Back navigation icon
+  </Card>
+  <Card title="svg-arrow-next" icon="arrow-right">
+    Forward navigation icon
+  </Card>
+  <Card title="svg-arrow-back" icon="chevron-left">
+    Previous navigation icon
+  </Card>
+  <Card title="svg-configuration" icon="gear">
+    Settings/configuration icon
+  </Card>
+  <Card title="svg-trash" icon="trash">
+    Delete icon
+  </Card>
+  <Card title="svg-check" icon="check">
+    Checkmark/success icon
+  </Card>
+  <Card title="svg-clock" icon="clock">
+    Time/duration icon
+  </Card>
+  <Card title="svg-songs" icon="music">
+    Song/music icon
+  </Card>
+  <Card title="svg-singer" icon="microphone">
+    Artist/singer icon
+  </Card>
+  <Card title="svg-play-list" icon="list">
+    Playlist icon
+  </Card>
+  <Card title="svg-head-phones" icon="headphones">
+    Headphones/audio icon
+  </Card>
+  <Card title="svg-note" icon="music">
+    Musical note icon
+  </Card>
+  <Card title="svg-gender" icon="venus-mars">
+    Gender/category icon
+  </Card>
+</CardGroup>
+
+## Basic icon components
+
+Most icon components share the same basic interface:
+
+### Props
+
+<ParamField path="width" type="string" default="varies">
+  The width of the icon. Accepts any valid CSS width value.
+</ParamField>
+
+<ParamField path="height" type="string" default="varies">
+  The height of the icon. Accepts any valid CSS height value.
+</ParamField>
+
+<ParamField path="color" type="string" default="varies">
+  The fill color of the icon. Accepts color names, hex values, or CSS variables.
+</ParamField>
+
+## SvgPlayComponent
+
+Location: `src/app/ui/components/svg-play/svg-play.component.ts:16`
+
+```typescript
+export class SvgPlayComponent {
+  public width: InputSignal<string> = input<string>("100%");
+  public height: InputSignal<string> = input<string>("100%");
+  public color: InputSignal<string> = input<string>("white");
+}
+```
+
+### Usage examples
+
+```html
+<!-- Basic play button -->
+<app-svg-play width="1.2rem" height="1.2rem" color="white" />
+
+<!-- Large play button with custom color -->
+<app-svg-play width="40%" height="40%" color="var(--primary-color)" />
+
+<!-- Play button with click handler -->
+<app-svg-play 
+  (click)="playAudio()" 
+  width="1.2rem" 
+  height="1.2rem" 
+  color="white" 
+/>
+```
+
+From `section-trends.component.html:6`:
+
+```html
+<app-svg-play 
+  (click)="onClickPlay()" 
+  width="40%" 
+  height="40%" 
+  color="white" 
+/>
+```
+
+## SvgHeartComponent
+
+A special icon component with favorite state management.
+
+Location: `src/app/ui/components/svg-heart/svg-heart.component.ts:34`
+
+```typescript
+export class SvgHeartComponent {
+  public width: InputSignal<string> = input<string>("100%");
+  public height: InputSignal<string> = input<string>("100%");
+  public isFavorite: InputSignal<boolean> = input<boolean>(false);
+}
+```
+
+### Props
+
+<ParamField path="width" type="string" default="'100%'">
+  The width of the heart icon.
+</ParamField>
+
+<ParamField path="height" type="string" default="'100%'">
+  The height of the heart icon.
+</ParamField>
+
+<ParamField path="isFavorite" type="boolean" default="false">
+  When `true`, displays the heart in the favorite state (primary color). When `false`, displays in the not-favorite state (white).
+</ParamField>
+
+### Usage examples
+
+```html
+<!-- Not favorited -->
+<app-svg-heart 
+  width="1rem" 
+  height="1rem" 
+  [isFavorite]="false" 
+/>
+
+<!-- Favorited -->
+<app-svg-heart 
+  width="1rem" 
+  height="1rem" 
+  [isFavorite]="true" 
+/>
+
+<!-- With click handler -->
+<app-svg-heart 
+  (click)="toggleFavorite(song)" 
+  width="1rem" 
+  height="1rem" 
+  [isFavorite]="song.isFavorite" 
+/>
+```
+
+From `section-card-lists-song-selected.component.html:78`:
+
+```html
+<app-svg-heart 
+  (click)="stateMusicPlayerService.changeFavoriteSonSelected(song)" 
+  width="1rem" 
+  height="1rem" 
+  [isFavorite]="song.isFavorite" 
+/>
+```
+
+### Styling
+
+The heart component uses CSS classes for favorite states:
+
+```css
+.favorite {
+  color: var(--primary-color);
+}
+
+.not-favorite {
+  color: var(--white-color);
+}
+
+svg:hover {
+  color: var(--primary-color);
+}
+```
+
+## SvgSearchComponent
+
+A search icon with hover color effects.
+
+Location: `src/app/ui/components/svg-search/svg-search.component.ts:24`
+
+```typescript
+export class SvgSearchComponent {
+  public width: InputSignal<string> = input<string>("100%");
+  public height: InputSignal<string> = input<string>("100%");
+  public color: InputSignal<string> = input<string>("white");
+  public colorHover: InputSignal<string> = input<string>("red");
+}
+```
+
+### Props
+
+<ParamField path="width" type="string" default="'100%'">
+  The width of the search icon.
+</ParamField>
+
+<ParamField path="height" type="string" default="'100%'">
+  The height of the search icon.
+</ParamField>
+
+<ParamField path="color" type="string" default="'white'">
+  The default color of the icon.
+</ParamField>
+
+<ParamField path="colorHover" type="string" default="'red'">
+  The color of the icon when hovered.
+</ParamField>
+
+### Usage example
+
+```html
+<app-svg-search 
+  width="1.5rem" 
+  height="1.5rem" 
+  color="white" 
+  colorHover="var(--primary-color)" 
+/>
+```
+
+## SvgCloseComponent
+
+Location: `src/app/ui/components/svg-close/svg-close.component.ts:9`
+
+```typescript
+export class SvgCloseComponent {
+  public width: InputSignal<string> = input<string>("2rem");
+  public height: InputSignal<string> = input<string>("2rem");
+  public color: InputSignal<string> = input<string>("white");
+}
+```
+
+### Usage example
+
+```html
+<app-svg-close 
+  (click)="closeModal()" 
+  width="1.5rem" 
+  height="1.5rem" 
+  color="white" 
+/>
+```
+
+## SvgArrowNextComponent
+
+Navigation arrow with hover effects.
+
+Location: `src/app/ui/components/svg-arrow-next/svg-arrow-next.component.ts:25`
+
+```typescript
+export class SvgArrowNextComponent {
+  public width: InputSignal<string> = input<string>("2rem");
+  public height: InputSignal<string> = input<string>("2rem");
+  public color: InputSignal<string> = input<string>("white");
+}
+```
+
+### Usage example
+
+```html
+<app-svg-arrow-next 
+  (click)="nextPage()" 
+  width="1.5rem" 
+  height="1.5rem" 
+  color="var(--primary-color)" 
+/>
+```
+
+## Common patterns
+
+### Using icons with buttons
+
+```html
+<button (click)="play()">
+  <app-svg-play width="1rem" height="1rem" color="white" />
+  Play
+</button>
+```
+
+### Responsive icon sizes
+
+```html
+<!-- Percentage-based sizing -->
+<div class="icon-container">
+  <app-svg-play width="20%" height="20%" color="black" />
+</div>
+
+<!-- Fixed sizing -->
+<app-svg-play width="1.2rem" height="1.2rem" color="white" />
+```
+
+### Using CSS variables for colors
+
+```html
+<app-svg-play width="13%" height="13%" color="var(--primary-color)" />
+<app-svg-heart width="100%" height="100%" [isFavorite]="isLiked" />
+<app-svg-search color="var(--color-gray-white)" colorHover="var(--primary-color)" />
+```
+
+## TypeScript integration
+
+```typescript
+import { Component, signal } from '@angular/core';
+import { SvgPlayComponent } from './ui/components/svg-play/svg-play.component';
+import { SvgHeartComponent } from './ui/components/svg-heart/svg-heart.component';
+
+@Component({
+  selector: 'app-song-card',
+  imports: [SvgPlayComponent, SvgHeartComponent],
+  template: `
+    <div class="song-card">
+      <button (click)="play()">
+        <app-svg-play width="2rem" height="2rem" color="white" />
+      </button>
+      <app-svg-heart 
+        (click)="toggleFavorite()" 
+        width="1.5rem" 
+        height="1.5rem" 
+        [isFavorite]="isFavorite()" 
+      />
+    </div>
+  `
+})
+export class SongCardComponent {
+  isFavorite = signal(false);
+
+  play() {
+    console.log('Playing song...');
+  }
+
+  toggleFavorite() {
+    this.isFavorite.update(val => !val);
+  }
+}
+```
+
+## Best practices
+
+- Use consistent sizing across similar UI elements (e.g., all toolbar icons at `1.5rem`)
+- Leverage CSS variables for colors to maintain consistent theming
+- Add click handlers directly on the icon components for interactive icons
+- Use percentage-based sizing for responsive icons within containers
+- Use rem-based sizing for consistent absolute sizing
+- Apply the `isFavorite` prop to the heart icon to reflect state

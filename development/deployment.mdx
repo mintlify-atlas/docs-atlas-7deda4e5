@@ -1,0 +1,276 @@
+---
+title: Deploying to GitHub Pages
+description: Learn how to deploy Cinemusic to GitHub Pages using Angular CLI and GitHub Actions CI/CD
+---
+
+Cinemusic is automatically deployed to GitHub Pages using GitHub Actions. You can also deploy manually using the Angular CLI.
+
+## Deployment setup
+
+The project uses `angular-cli-ghpages` for seamless deployment to GitHub Pages:
+
+<CodeGroup>
+```json package.json
+"scripts": {
+  "deploy": "ng deploy"
+},
+"devDependencies": {
+  "angular-cli-ghpages": "^2.0.3"
+}
+```
+
+```json angular.json
+"deploy": {
+  "builder": "angular-cli-ghpages:deploy"
+}
+```
+</CodeGroup>
+
+<Info>
+  The application is configured with `baseHref: "/cinemusic/"` in `angular.json` to work correctly when deployed to GitHub Pages at `username.github.io/cinemusic/`.
+</Info>
+
+## Manual deployment
+
+You can deploy manually from your local machine:
+
+<Steps>
+  <Step title="Build the application">
+    First, create a production build:
+
+    ```bash
+    npm run build
+    ```
+
+    This generates optimized files in `dist/cinemusic`.
+  </Step>
+
+  <Step title="Configure Git credentials">
+    Ensure your Git identity is configured:
+
+    ```bash
+    git config --global user.email "your-email@example.com"
+    git config --global user.name "Your Name"
+    ```
+  </Step>
+
+  <Step title="Deploy to GitHub Pages">
+    Run the deploy command:
+
+    ```bash
+    npm run deploy
+    ```
+
+    This pushes the build output to the `gh-pages` branch of your repository.
+  </Step>
+
+  <Step title="Verify deployment">
+    After deployment completes, visit your GitHub Pages URL:
+
+    ```
+    https://username.github.io/cinemusic/
+    ```
+
+    <Note>
+      It may take a few minutes for GitHub Pages to publish the changes.
+    </Note>
+  </Step>
+</Steps>
+
+## Automated deployment with GitHub Actions
+
+Cinemusic includes a GitHub Actions workflow that automatically builds and deploys the application when you push to the main branch.
+
+### Workflow configuration
+
+The workflow is defined in `.github/workflows/deploy.yml`:
+
+<CodeGroup>
+```yaml .github/workflows/deploy.yml
+name: cinemusic CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: latest
+
+      - name: Instalar dependencias
+        run: npm install
+
+      - name: Build Angular
+        run: npm run build
+
+      - name: Configurar identidad de Git y token
+        run: |
+          git config --global user.email "fonseca123papo@gmail.com"
+          git config --global user.name "Juan Pablo Leon"
+
+      - name: Deploy to GitHub Pages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run deploy
+
+      - name: Clean up
+        run: |
+          rm -rf dist/cinemusic
+          npm cache clean --force
+```
+</CodeGroup>
+
+### Workflow triggers
+
+The workflow runs automatically on:
+
+- **Push to main**: Deploys the latest changes to production
+- **Pull requests**: Builds the application to verify changes (but doesn't deploy)
+
+<Info>
+  The workflow uses `secrets.GITHUB_TOKEN`, which is automatically provided by GitHub Actions. No additional configuration is needed.
+</Info>
+
+## Workflow steps explained
+
+<Steps>
+  <Step title="Checkout code">
+    The workflow checks out your repository code using `actions/checkout@v4`.
+  </Step>
+
+  <Step title="Setup Node.js">
+    Installs the latest Node.js version using `actions/setup-node@v4`.
+  </Step>
+
+  <Step title="Install dependencies">
+    Runs `npm install` to install all project dependencies from `package.json`.
+  </Step>
+
+  <Step title="Build application">
+    Executes `npm run build` to create a production-optimized build in `dist/cinemusic`.
+  </Step>
+
+  <Step title="Configure Git identity">
+    Sets up Git user credentials needed for pushing to the `gh-pages` branch.
+  </Step>
+
+  <Step title="Deploy to GitHub Pages">
+    Runs `npm run deploy` with the GitHub token to push the build to GitHub Pages.
+  </Step>
+
+  <Step title="Clean up">
+    Removes build artifacts and clears npm cache to keep the workflow environment clean.
+  </Step>
+</Steps>
+
+## Monitoring deployments
+
+### View workflow status
+
+You can monitor deployment progress in the GitHub Actions tab:
+
+1. Go to your repository on GitHub
+2. Click the **Actions** tab
+3. Select the latest workflow run
+4. View logs for each step
+
+<Warning>
+  If the workflow fails, check the logs to identify the issue. Common problems include build errors, dependency issues, or Git configuration problems.
+</Warning>
+
+### Deployment history
+
+To view previous deployments:
+
+```bash
+git log gh-pages
+```
+
+This shows the commit history of your `gh-pages` branch.
+
+## Deployment troubleshooting
+
+### Build fails in CI
+
+If the build fails in GitHub Actions:
+
+1. Check the workflow logs for error messages
+2. Verify that the build works locally: `npm run build`
+3. Ensure all dependencies are in `package.json`, not just installed globally
+
+### Permission denied errors
+
+If you see permission errors during deployment:
+
+1. Verify that GitHub Actions has write permissions in your repository settings
+2. Go to **Settings > Actions > General > Workflow permissions**
+3. Ensure "Read and write permissions" is selected
+
+### Wrong base path
+
+If assets fail to load after deployment, check the base href configuration:
+
+<CodeGroup>
+```json angular.json
+"baseHref": "/cinemusic/"
+```
+</CodeGroup>
+
+This must match your GitHub Pages URL path.
+
+### Deployment not publishing
+
+If deployment succeeds but changes don't appear:
+
+1. Check GitHub Pages settings: **Settings > Pages**
+2. Ensure source is set to **Deploy from a branch**
+3. Verify branch is set to **gh-pages** and folder is **/ (root)**
+4. Wait a few minutes for GitHub Pages to build
+
+<Note>
+  GitHub Pages can take up to 10 minutes to publish changes after a deployment.
+</Note>
+
+## Custom domain setup
+
+To use a custom domain with GitHub Pages:
+
+<Steps>
+  <Step title="Add CNAME file">
+    Create a `CNAME` file in the `public` directory with your domain:
+
+    ```
+    cinemusic.yourdomain.com
+    ```
+  </Step>
+
+  <Step title="Configure DNS">
+    Add a CNAME record in your DNS settings pointing to:
+
+    ```
+    username.github.io
+    ```
+  </Step>
+
+  <Step title="Update base href">
+    Change the base href in `angular.json`:
+
+    ```json
+    "baseHref": "/"
+    ```
+  </Step>
+
+  <Step title="Enable HTTPS">
+    In GitHub repository settings, enable "Enforce HTTPS" under the Pages section.
+  </Step>
+</Steps>

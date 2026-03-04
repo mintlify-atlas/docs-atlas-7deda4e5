@@ -1,0 +1,278 @@
+---
+title: Playlists
+description: Create and manage custom playlists with song addition and deletion features
+---
+
+Cinemusic allows you to create custom playlists, add songs, and organize your music library. The playlist system uses Angular signals for reactive state management.
+
+## Playlist data model
+
+The application uses two main interfaces for playlist management:
+
+<CodeGroup>
+
+```typescript PlayList interface
+export interface PlayList {
+  id: string
+  quantityFavorite: number
+  quantitySongsTotals: number
+  quantityPlayList: number
+}
+```
+
+```typescript ListSongs interface
+export interface ListSongs {
+  id: string
+  name: string
+  description: string
+  image: string
+  listSongs: Song[]
+  durationList: string
+}
+```
+
+</CodeGroup>
+
+## Creating playlists
+
+### Playlist creation form
+
+Create new playlists using a reactive form with validation:
+
+<Steps>
+
+<Step title="Form setup">
+The form uses Angular's FormBuilder with validators:
+
+```typescript
+import { FormBuilder, Validators } from '@angular/forms';
+
+protected listForms = this.formularyBuilder.group({
+  name: ['', [Validators.required, Validators.pattern(/^(?!\s*$).+/)]],
+  description: ['', [Validators.required, Validators.pattern(/^(?!\s*$).+/)]]
+});
+```
+
+The pattern `/^(?!\s*$).+/` ensures the fields are not empty or whitespace-only.
+</Step>
+
+<Step title="Submit handler">
+Handle form submission and create the playlist:
+
+```typescript
+protected submitForm(): void {
+  if (this.listForms.valid) {
+    const data = {
+      name: this.listForms.get('name')?.value,
+      description: this.listForms.get('description')?.value,
+    }
+    this.stateMusicService.stateFormularyCreateListService.createNewListSongs(data);
+    this.toogleFormulary.set(false);
+  } else {
+    this.listForms.markAllAsTouched();
+  }
+}
+```
+</Step>
+
+<Step title="Cancel action">
+Close the form without saving:
+
+```typescript
+protected cancel(): void {
+  this.toogleFormulary.set(false);
+}
+```
+</Step>
+
+</Steps>
+
+### State management for creation
+
+The `StateFormularyCreateListService` handles playlist creation:
+
+```typescript
+public createNewListSongs(listSongs: any): void {
+  this.musicDataService.createNewListSongs(listSongs).subscribe({
+    next: () => {
+      this.musicDataService.getAllListSongs.refresh();
+    },
+    error: (error) => {
+      alert("Error al crear una lista de cancione nueva")
+    }
+  })
+}
+```
+
+<Note>
+After successful creation, the playlist list is automatically refreshed to show the new playlist.
+</Note>
+
+## Managing playlists
+
+### Playlist state
+
+The `StateMyListSongsService` manages playlist state:
+
+```typescript
+export class StateMyListSongsService {
+  public activateSection: WritableSignal<boolean> = signal<boolean>(false);
+  public listsListSongs: WritableSignal<ListSongs[]> = signal<ListSongs[]>([]);
+  public listSongsSelected: WritableSignal<ListSongs> = signal<ListSongs>({} as ListSongs);
+
+  public deleteSongOfList(song: Song, idList: string): void {
+    this.musicDataService.deleteSongOfList(song.id, idList);
+  }
+}
+```
+
+### Deleting songs from playlists
+
+Remove songs from a specific playlist:
+
+```typescript
+public deleteSongOfList(song: Song, idList: string): void {
+  this.musicDataService.deleteSongOfList(song.id, idList);
+}
+```
+
+## Adding songs to playlists
+
+### Song selection state
+
+The `StateSectionAddSongToListService` manages song selection:
+
+```typescript
+export class StateSectionAddSongToListService {
+  public listAllSongs: WritableSignal<Song[]> = signal([]);
+  public listAllSongsFiltered: WritableSignal<Song[]> = signal(this.listAllSongs());
+  public listSongsSelected: WritableSignal<Song[]> = signal([]);
+
+  public isSongSelected(song: Song): boolean {
+    return this.listSongsSelected().some(item => item.id === song.id);
+  }
+
+  public deleteSongSelected(song: Song): void {
+    this.listSongsSelected.update(list => list.filter(item => item.id !== song.id));
+  }
+
+  public addSongToList(song: Song): void {
+    this.listSongsSelected.update(list => [...list, song]);
+  }
+
+  public filteredSongsByName(value: string): void {
+    this.listAllSongsFiltered.set(
+      this.listAllSongs().filter(song => 
+        song.name.toLowerCase().includes(value.toLowerCase())
+      )
+    );
+  }
+}
+```
+
+### Adding songs workflow
+
+<Steps>
+
+<Step title="Check if song is selected">
+Verify if a song is already in the selection:
+
+```typescript
+public isSongSelected(song: Song): boolean {
+  return this.listSongsSelected().some(item => item.id === song.id);
+}
+```
+</Step>
+
+<Step title="Add song to selection">
+Add a song to the temporary selection list:
+
+```typescript
+public addSongToList(song: Song): void {
+  this.listSongsSelected.update(list => [...list, song]);
+}
+```
+</Step>
+
+<Step title="Remove song from selection">
+Remove a song from the temporary selection:
+
+```typescript
+public deleteSongSelected(song: Song): void {
+  this.listSongsSelected.update(list => list.filter(item => item.id !== song.id));
+}
+```
+</Step>
+
+<Step title="Filter songs">
+Filter the available songs by name:
+
+```typescript
+public filteredSongsByName(value: string): void {
+  this.listAllSongsFiltered.set(
+    this.listAllSongs().filter(song => 
+      song.name.toLowerCase().includes(value.toLowerCase())
+    )
+  );
+}
+```
+</Step>
+
+</Steps>
+
+## Playlist data service
+
+The `PlayListService` fetches playlist data:
+
+```typescript
+export class PlayListService {
+  private urlApi: string = 'data/music_data_songs.json';
+  private httpClient: HttpClient = inject(HttpClient);
+
+  public getDataPlayList(): Observable<PlayList> {
+    return this.httpClient.get<PlayList>("data/music_data_play_list.json");
+  }
+}
+```
+
+<Info>
+Playlist data is stored in JSON files located in the `data/` directory.
+</Info>
+
+## Song card options
+
+When displaying songs in playlists, the following card options are available:
+
+```typescript
+export enum CardOptionsConst {
+  SHARE = "share",
+  FAVORITE = "favorite",
+  PLAYLIST = "playlist",
+  DELETE = "delete",
+}
+```
+
+These options allow users to:
+
+- **Share**: Share the song
+- **Favorite**: Mark the song as favorite
+- **Playlist**: Add the song to a playlist
+- **Delete**: Remove the song from the current playlist
+
+## Best practices
+
+<Note>
+**Signal updates**: Use the `update()` method for array manipulations to ensure proper reactivity:
+
+```typescript
+// Good
+this.listSongsSelected.update(list => [...list, song]);
+
+// Avoid
+this.listSongsSelected().push(song);
+```
+</Note>
+
+<Info>
+**Validation**: Always validate form inputs before creating playlists to ensure data quality and prevent empty playlists.
+</Info>

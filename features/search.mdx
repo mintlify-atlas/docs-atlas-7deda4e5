@@ -1,0 +1,273 @@
+---
+title: Search
+description: Search for songs, artists, and genres with real-time filtering
+---
+
+The search functionality in Cinemusic allows you to find songs, filter by artists, and browse by music genres with real-time filtering.
+
+## Search architecture
+
+The search system uses a combination of search types and state management:
+
+- **Search types**: Songs, artists, and categories (genres)
+- **Real-time filtering**: Updates as you type
+- **State management**: Angular signals for reactive updates
+
+## Search types
+
+The application supports three search types:
+
+```typescript
+export enum TypeSearchEnum {
+  CATEGORY = "CATEGORY",
+  SEARCH = "SEARCH",
+  ARTIST = "ARTIST",
+}
+```
+
+### Search data model
+
+```typescript
+export interface TypeSearch {
+  type: String;
+  value: String;
+}
+```
+
+## Search state management
+
+The `StateSectionSearchService` manages search state:
+
+```typescript
+export class StateSectionSearchService {
+  public dataSearch: WritableSignal<TypeSearch> = signal<TypeSearch>({
+    type: TypeSearchEnum.SEARCH,
+    value: "ALL"
+  });
+  public activationSong: WritableSignal<boolean> = signal<boolean>(true)
+  public activationGender: WritableSignal<boolean> = signal<boolean>(false);
+  public activationSinger: WritableSignal<boolean> = signal<boolean>(false);
+
+  public setStateElements(data: string): void {
+    if (data === TypeSearchEnum.ARTIST) {
+      this.activationSong.set(false);
+      this.activationGender.set(false);
+      this.dataSearch.set({type: TypeSearchEnum.ARTIST, value: "ALL"})
+    } else if (data === TypeSearchEnum.CATEGORY) {
+      this.activationSong.set(false);
+      this.activationSinger.set(false);
+      this.dataSearch.set({type: TypeSearchEnum.CATEGORY, value: "ALL"})
+    } else {
+      this.activationSinger.set(false);
+      this.activationGender.set(false);
+      this.dataSearch.set({type: TypeSearchEnum.SEARCH, value: "ALL"})
+    }
+  }
+}
+```
+
+<Note>
+The search state tracks which search type is active and updates the UI accordingly.
+</Note>
+
+## Implementing search
+
+### Search component
+
+The `SectionSearchComponent` handles search input and filtering:
+
+```typescript
+export class SectionSearchComponent {
+  private stateMusicService: StateMusicService = inject(StateMusicService);
+  protected dataSearch: WritableSignal<TypeSearch> = 
+    this.stateMusicService.stateSectionSearchService.dataSearch;
+
+  protected onChangeInput(value: string): void {
+    this.dataSearch.set({
+      type: this.dataSearch().type,
+      value: value
+    })
+
+    let listDataFiltered: Song[] = 
+      this.stateMusicService.stateSectionMainMusicService.changeFilteredSongs(this.dataSearch());
+
+    if (listDataFiltered.length > 0) {
+      this.stateMusicService.stateMusicPlayerService.listSongs.set(listDataFiltered);
+    }
+  }
+}
+```
+
+### Real-time filtering
+
+<Steps>
+
+<Step title="Capture input">
+Capture the search input value as the user types:
+
+```typescript
+protected onChangeInput(value: string): void {
+  this.dataSearch.set({
+    type: this.dataSearch().type,
+    value: value
+  })
+  // ...
+}
+```
+</Step>
+
+<Step title="Filter songs">
+Filter songs based on the search criteria:
+
+```typescript
+let listDataFiltered: Song[] = 
+  this.stateMusicService.stateSectionMainMusicService.changeFilteredSongs(this.dataSearch());
+```
+</Step>
+
+<Step title="Update player list">
+Update the music player's song list with filtered results:
+
+```typescript
+if (listDataFiltered.length > 0) {
+  this.stateMusicService.stateMusicPlayerService.listSongs.set(listDataFiltered);
+}
+```
+</Step>
+
+</Steps>
+
+## Search by category (genre)
+
+Cinemusic supports searching by music genres:
+
+```typescript
+export enum CategoriesEnum {
+  ALL = "ALL",
+  POP = "POP",
+  ROCK = "ROCK",
+  HIP_HOP = "HIP HOP",
+  ELECTRONIC = "ELECTRONIC",
+  RAP = "RAP",
+  JAZZ = "JAZZ",
+  BLUES = "BLUES",
+  COUNTRY = "COUNTRY",
+  RNB = "RNB",
+  REGGAE = "REGGAE",
+  METAL = "METAL",
+}
+```
+
+### Activating category search
+
+Switch to category search mode:
+
+```typescript
+if (data === TypeSearchEnum.CATEGORY) {
+  this.activationSong.set(false);
+  this.activationSinger.set(false);
+  this.dataSearch.set({type: TypeSearchEnum.CATEGORY, value: "ALL"})
+}
+```
+
+## Search by artist
+
+### Artist data model
+
+```typescript
+export interface Artis {
+  id: string;
+  name: string;
+  image: string;
+  gender: string;
+  song: string;
+  numberPerson: number
+}
+```
+
+### Artist search state
+
+```typescript
+export class StateSectionArtistsService {
+  public selectedArtist: WritableSignal<Artis> = signal<Artis>({} as Artis);
+}
+```
+
+### Activating artist search
+
+Switch to artist search mode:
+
+```typescript
+if (data === TypeSearchEnum.ARTIST) {
+  this.activationSong.set(false);
+  this.activationGender.set(false);
+  this.dataSearch.set({type: TypeSearchEnum.ARTIST, value: "ALL"})
+}
+```
+
+## Search UI components
+
+The search interface uses custom SVG components for visual indicators:
+
+<Tabs>
+  <Tab title="Songs">
+    ```typescript
+    import { SvgSongsComponent } from "./components/svg-songs/svg-songs.component";
+    ```
+    
+    Used when searching for songs (default search mode).
+  </Tab>
+  
+  <Tab title="Artists">
+    ```typescript
+    import { SvgSingerComponent } from "./components/svg-singer/svg-singer.component";
+    ```
+    
+    Used when searching by artist.
+  </Tab>
+  
+  <Tab title="Genres">
+    ```typescript
+    import { SvgGenderComponent } from "./components/svg-gender/svg-gender.component";
+    ```
+    
+    Used when browsing by genre/category.
+  </Tab>
+</Tabs>
+
+## Search activation states
+
+The search component maintains three activation states:
+
+```typescript
+public activationSong: WritableSignal<boolean> = signal<boolean>(true)
+public activationGender: WritableSignal<boolean> = signal<boolean>(false);
+public activationSinger: WritableSignal<boolean> = signal<boolean>(false);
+```
+
+Only one search type can be active at a time, ensuring a clear user experience.
+
+## Integration with music player
+
+When search results are available, they're automatically loaded into the music player:
+
+```typescript
+if (listDataFiltered.length > 0) {
+  this.stateMusicService.stateMusicPlayerService.listSongs.set(listDataFiltered);
+}
+```
+
+This allows users to:
+- Play filtered results immediately
+- Navigate through search results using player controls
+- Maintain playback state while searching
+
+## Best practices
+
+<Info>
+**Performance**: The search filtering happens in real-time but only updates the player when results are available, preventing empty playlist states.
+</Info>
+
+<Note>
+**Type safety**: Using TypeScript enums for search types and categories ensures type safety and prevents invalid search states.
+</Note>

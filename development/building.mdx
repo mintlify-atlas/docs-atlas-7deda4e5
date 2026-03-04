@@ -1,0 +1,183 @@
+---
+title: Building the application
+description: Learn how to build Cinemusic for production and development environments using Angular CLI
+---
+
+Cinemusic uses Angular CLI to build the application with different configurations for production and development environments.
+
+## Build configurations
+
+The project has two build configurations defined in `angular.json`:
+
+### Production build
+
+The production configuration includes optimizations for deployment:
+
+- **Output hashing**: All files are hashed for cache busting
+- **Bundle budgets**: Enforces size limits to prevent bloated bundles
+- **Base href**: Set to `/cinemusic/` for GitHub Pages deployment
+
+<CodeGroup>
+```json angular.json
+"production": {
+  "budgets": [
+    {
+      "type": "initial",
+      "maximumWarning": "500kB",
+      "maximumError": "1MB"
+    },
+    {
+      "type": "anyComponentStyle",
+      "maximumWarning": "8kB",
+      "maximumError": "15kB"
+    }
+  ],
+  "outputHashing": "all"
+}
+```
+</CodeGroup>
+
+### Development build
+
+The development configuration prioritizes debugging and fast rebuilds:
+
+- **No optimization**: Faster builds without minification
+- **Source maps**: Enabled for debugging
+- **License extraction**: Disabled for faster builds
+
+<CodeGroup>
+```json angular.json
+"development": {
+  "optimization": false,
+  "extractLicenses": false,
+  "sourceMap": true
+}
+```
+</CodeGroup>
+
+## Building the application
+
+<Steps>
+  <Step title="Install dependencies">
+    Before building, ensure all dependencies are installed:
+
+    ```bash
+    npm install
+    ```
+  </Step>
+
+  <Step title="Run the build command">
+    Build the application using one of the available npm scripts:
+
+    <CodeGroup>
+    ```bash Production build
+    npm run build
+    ```
+
+    ```bash Development build (with watch)
+    npm run watch
+    ```
+
+    ```bash Using Angular CLI directly
+    ng build --configuration production
+    ```
+    </CodeGroup>
+
+    <Info>
+      The default configuration is **production**, so running `npm run build` creates a production-optimized build.
+    </Info>
+  </Step>
+
+  <Step title="Check the output">
+    The build output is generated in the `dist/cinemusic` directory:
+
+    ```bash
+    ls dist/cinemusic
+    ```
+
+    You'll find optimized HTML, CSS, and JavaScript bundles ready for deployment.
+  </Step>
+</Steps>
+
+## Build output
+
+The Angular build process generates:
+
+- **index.html**: The main application entry point
+- **JavaScript bundles**: Compiled and optimized TypeScript code
+- **CSS files**: Compiled styles from `src/styles.css`
+- **Assets**: Static files from the `public` directory
+- **Polyfills**: Browser compatibility code (zone.js)
+
+<Note>
+  The output path is configured in `angular.json` as `dist/cinemusic` with a base href of `/cinemusic/`.
+</Note>
+
+## Bundle optimization
+
+### Size budgets
+
+Cinemusic enforces bundle size budgets to maintain performance:
+
+| Budget Type | Maximum Warning | Maximum Error |
+|-------------|-----------------|---------------|
+| Initial bundle | 500 kB | 1 MB |
+| Component styles | 8 kB | 15 kB |
+
+<Warning>
+  If your build exceeds these budgets, you'll see warnings or errors. Consider code splitting, lazy loading, or removing unused dependencies.
+</Warning>
+
+### Output hashing
+
+Production builds use output hashing (`outputHashing: "all"`) to generate unique filenames based on file content:
+
+```
+main.a1b2c3d4.js
+styles.e5f6g7h8.css
+```
+
+This ensures browsers always fetch the latest version after deployment.
+
+## Watch mode
+
+For continuous development, use watch mode to automatically rebuild on file changes:
+
+```bash
+npm run watch
+```
+
+This runs `ng build --watch --configuration development` and monitors your source files for changes.
+
+<Info>
+  Watch mode uses the development configuration for faster rebuilds without optimization.
+</Info>
+
+## Build troubleshooting
+
+### Clear the build cache
+
+If you encounter unexpected build issues, try clearing the Angular cache:
+
+```bash
+rm -rf .angular/cache
+npm run build
+```
+
+### Check TypeScript configuration
+
+Ensure your TypeScript version matches the requirements:
+
+```bash
+npx tsc --version
+```
+
+Cinemusic uses TypeScript ~5.7.2 as specified in `package.json`.
+
+### Memory issues
+
+For large builds, you may need to increase Node.js memory:
+
+```bash
+NODE_OPTIONS="--max-old-space-size=4096" npm run build
+```

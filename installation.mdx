@@ -1,0 +1,189 @@
+---
+title: Installation
+description: Install Cinemusic by setting up Node.js, npm, Angular CLI, and all required dependencies for local development.
+---
+
+## Prerequisites
+
+Before installing Cinemusic, ensure you have the following tools installed on your system.
+
+### Node.js and npm
+
+Cinemusic requires Node.js to run the development server and build the application.
+
+<Steps>
+  <Step title="Check if Node.js is installed">
+    Open your terminal and run:
+    
+    ```bash
+    node --version
+    ```
+    
+    You should see a version number like `v18.0.0` or higher. If you see an error, proceed to the next step.
+  </Step>
+  
+  <Step title="Install Node.js">
+    Download and install Node.js from [nodejs.org](https://nodejs.org/). We recommend using the LTS (Long Term Support) version.
+    
+    <Info>
+      npm (Node Package Manager) is included automatically with Node.js installation.
+    </Info>
+  </Step>
+  
+  <Step title="Verify npm installation">
+    After installing Node.js, verify npm is available:
+    
+    ```bash
+    npm --version
+    ```
+  </Step>
+</Steps>
+
+### Angular CLI
+
+The Angular CLI is essential for running development commands and building the application.
+
+<Steps>
+  <Step title="Install Angular CLI globally">
+    Install the Angular CLI globally using npm:
+    
+    ```bash
+    npm install -g @angular/cli
+    ```
+    
+    <Note>
+      The `-g` flag installs the CLI globally, making it available from any directory on your system.
+    </Note>
+  </Step>
+  
+  <Step title="Verify Angular CLI installation">
+    Confirm the installation:
+    
+    ```bash
+    ng version
+    ```
+    
+    You should see output showing Angular CLI version 19.1.6 or compatible.
+  </Step>
+</Steps>
+
+### Git (optional)
+
+While not strictly required, Git is recommended for cloning the repository and version control.
+
+Check if Git is installed:
+
+```bash
+git --version
+```
+
+If not installed, download it from [git-scm.com](https://git-scm.com/).
+
+## Install Cinemusic
+
+Once you have the prerequisites ready, follow these steps to install Cinemusic.
+
+<Steps>
+  <Step title="Clone the repository">
+    Clone the Cinemusic repository to your local machine:
+    
+    ```bash
+    git clone https://github.com/JuanPabloLeonF/cinemusic.git
+    cd cinemusic
+    ```
+    
+    <Info>
+      If you don't have Git installed, you can download the repository as a ZIP file from GitHub and extract it.
+    </Info>
+  </Step>
+  
+  <Step title="Install dependencies">
+    Install all required npm packages:
+    
+    ```bash
+    npm install
+    ```
+    
+    This command installs all dependencies listed in `package.json`, including:
+    
+    - Angular 19.1.0 core packages
+    - ngx-translate for internationalization
+    - RxJS for reactive programming
+    - Development tools and testing frameworks
+    
+    <Warning>
+      The installation may take a few minutes depending on your internet connection and system performance.
+    </Warning>
+  </Step>
+  
+  <Step title="Verify installation">
+    Confirm that all dependencies are installed correctly by checking for the `node_modules` directory:
+    
+    ```bash
+    ls node_modules
+    ```
+    
+    You should see a long list of installed packages.
+  </Step>
+</Steps>
+
+## Project dependencies
+
+Cinemusic includes the following key dependencies:
+
+### Runtime dependencies
+
+| Package | Version | Purpose |
+|---------|---------|----------|
+| `@angular/core` | ^19.1.0 | Angular framework core |
+| `@angular/router` | ^19.1.0 | Client-side routing |
+| `@angular/animations` | ^19.1.0 | Animation support |
+| `@ngx-translate/core` | ^16.0.4 | Internationalization |
+| `@ngx-translate/http-loader` | ^16.0.1 | Translation file loader |
+| `rxjs` | ~7.8.0 | Reactive programming |
+
+### Development dependencies
+
+| Package | Version | Purpose |
+|---------|---------|----------|
+| `@angular/cli` | ^19.1.6 | Angular command-line interface |
+| `@angular/compiler-cli` | ^19.1.0 | Angular template compiler |
+| `typescript` | ~5.7.2 | TypeScript compiler |
+| `karma` & `jasmine` | Latest | Testing frameworks |
+| `angular-cli-ghpages` | ^2.0.3 | GitHub Pages deployment |
+
+## Troubleshooting
+
+### Permission errors during npm install
+
+If you encounter permission errors on macOS or Linux:
+
+```bash
+sudo npm install
+```
+
+<Warning>
+  Using `sudo` can cause permission issues. Consider using a Node version manager like [nvm](https://github.com/nvm-sh/nvm) instead.
+</Warning>
+
+### Port already in use
+
+If port 4200 is already in use, you can specify a different port:
+
+```bash
+ng serve --port 4300
+```
+
+### Node version mismatch
+
+If you encounter compatibility issues, ensure you're using Node.js version 18 or higher:
+
+```bash
+node --version
+```
+
+## Next steps
+
+<Card title="Quick start" icon="rocket" href="/quickstart">
+  Learn how to run Cinemusic locally and start exploring the application
+</Card>
