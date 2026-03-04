@@ -1,0 +1,81 @@
+{
+  "projectType": "frontend",
+  "projectName": "Cinemusic",
+  "projectDescription": "An interactive Angular web application for exploring and playing cinema-inspired music with multilingual support",
+  "theme": "palm",
+  "primaryColor": "#AD00F8",
+  "lightColor": null,
+  "darkColor": null,
+  "navigation": {
+    "groups": [
+      {
+        "group": "Get Started",
+        "pages": [
+          "introduction",
+          "installation",
+          "quickstart"
+        ]
+      },
+      {
+        "group": "Core Concepts",
+        "pages": [
+          "concepts/architecture",
+          "concepts/routing",
+          "concepts/state-management",
+          "concepts/data-models"
+        ]
+      },
+      {
+        "group": "Components",
+        "pages": [
+          "components/overview",
+          "components/buttons",
+          "components/inputs",
+          "components/svg-icons"
+        ]
+      },
+      {
+        "group": "Features",
+        "pages": [
+          "features/music-player",
+          "features/playlists",
+          "features/search",
+          "features/artist-browsing",
+          "features/internationalization"
+        ]
+      },
+      {
+        "group": "Development",
+        "pages": [
+          "development/building",
+          "development/testing",
+          "development/deployment"
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Interactive music player with playlist management",
+    "Browse music by artists, genres, and categories",
+    "Responsive bento-grid layout design",
+    "Multi-language support (English, Spanish, French)",
+    "Custom SVG icon components",
+    "State management with RxJS services",
+    "CI/CD with GitHub Pages deployment"
+  ],
+  "publicApiSurface": [
+    "MusicComponent",
+    "SeriesComponent",
+    "MusicPlayerComponent",
+    "StateMusicPlayerService",
+    "StateMusicService",
+    "StatePlayListService",
+    "ArtistService",
+    "GenderService",
+    "SongService",
+    "PlayListService",
+    "ButtonGenericComponent",
+    "InputSearchGenericComponent",
+    "SelectOptionsComponent"
+  ]
+}
